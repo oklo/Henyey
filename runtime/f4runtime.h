@@ -131,13 +131,13 @@ F4Real f4_intr_dim(F4Real a, F4Real b);
 F4Integer f4_intr_idim(F4Integer a, F4Integer b);
 F4Double f4_intr_ddim(F4Double a, F4Double b);
 F4Integer f4_intr_max0(F4Integer a, F4Integer b);
-F4Real f4_intr_max1(F4Real a, F4Real b);
-F4Integer f4_intr_amax0(F4Real a, F4Real b);
+F4Integer f4_intr_max1(F4Real a, F4Real b);
+F4Real f4_intr_amax0(F4Integer a, F4Integer b);
 F4Real f4_intr_amax1(F4Real a, F4Real b);
 F4Double f4_intr_dmax1(F4Double a, F4Double b);
 F4Integer f4_intr_min0(F4Integer a, F4Integer b);
-F4Real f4_intr_min1(F4Real a, F4Real b);
-F4Integer f4_intr_amin0(F4Real a, F4Real b);
+F4Integer f4_intr_min1(F4Real a, F4Real b);
+F4Real f4_intr_amin0(F4Integer a, F4Integer b);
 F4Real f4_intr_amin1(F4Real a, F4Real b);
 F4Double f4_intr_dmin1(F4Double a, F4Double b);
 

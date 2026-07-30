@@ -1,5 +1,8 @@
 /build/
+/henyey
+/henyey_dbg*
 __pycache__/
 *.py[cod]
 *.o
 *.out
+!henyey.out

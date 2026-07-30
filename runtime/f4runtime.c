@@ -319,6 +319,44 @@ static void f4_put_spaces(FILE *file, int count) {
     }
 }
 
+static void f4_format_exponential(
+    char *buffer,
+    size_t buffer_size,
+    int width,
+    int precision,
+    double value,
+    int scale,
+    char code) {
+    char mantissa_text[128];
+    char core[192];
+    double mantissa = 0.0;
+    double rounded;
+    double boundary;
+    int exponent = 0;
+    int shift = scale - 1;
+
+    if (value != 0.0) {
+        exponent = (int)floor(log10(fabs(value)));
+        mantissa = value / pow(10.0, exponent);
+        exponent -= shift;
+    }
+    mantissa *= pow(10.0, shift);
+
+    snprintf(
+        mantissa_text, sizeof(mantissa_text), "%.*f", precision, mantissa);
+    rounded = strtod(mantissa_text, NULL);
+    boundary = pow(10.0, scale);
+    if (rounded != 0.0 && fabs(rounded) >= boundary) {
+        mantissa /= 10.0;
+        ++exponent;
+        snprintf(
+            mantissa_text, sizeof(mantissa_text), "%.*f", precision, mantissa);
+    }
+    snprintf(
+        core, sizeof(core), "%s%c%+03d", mantissa_text, code, exponent);
+    snprintf(buffer, buffer_size, "%*s", width, core);
+}
+
 typedef struct {
     FILE *file;
     size_t count;
@@ -371,14 +409,9 @@ static void f4_write_descriptor(
         break;
     case 'E':
     case 'D':
-        snprintf(buffer, sizeof(buffer), "%*.*E", width, precision,
-                 f4_value_as_double(value) * pow(10.0, state->scale));
-        if (code == 'D') {
-            char *exponent = strchr(buffer, 'E');
-            if (exponent != NULL) {
-                *exponent = 'D';
-            }
-        }
+        f4_format_exponential(
+            buffer, sizeof(buffer), width, precision,
+            f4_value_as_double(value), state->scale, code);
         break;
     case 'L':
         snprintf(buffer, sizeof(buffer), "%*c", width,
@@ -737,16 +770,20 @@ F4Double f4_intr_ddim(F4Double a, F4Double b) {
 #define F4_SAME(x) (x)
 
 F4_MINMAX(max0, F4Integer, >, F4_SAME)
-F4_MINMAX(max1, F4Real, >, f4_q)
 F4_MINMAX(amax1, F4Real, >, f4_q)
 F4_MINMAX(dmax1, F4Double, >, f4_dq)
 F4_MINMAX(min0, F4Integer, <, F4_SAME)
-F4_MINMAX(min1, F4Real, <, f4_q)
 F4_MINMAX(amin1, F4Real, <, f4_q)
 F4_MINMAX(dmin1, F4Double, <, f4_dq)
-F4Integer f4_intr_amax0(F4Real a, F4Real b) {
+F4Integer f4_intr_max1(F4Real a, F4Real b) {
     return f4_int(a > b ? a : b);
 }
-F4Integer f4_intr_amin0(F4Real a, F4Real b) {
+F4Real f4_intr_amax0(F4Integer a, F4Integer b) {
+    return f4_q((double)(a > b ? a : b));
+}
+F4Integer f4_intr_min1(F4Real a, F4Real b) {
     return f4_int(a < b ? a : b);
+}
+F4Real f4_intr_amin0(F4Integer a, F4Integer b) {
+    return f4_q((double)(a < b ? a : b));
 }

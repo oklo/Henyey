@@ -366,6 +366,16 @@ class Lexer:
             if number:
                 value = number.group(0)
                 end = i + len(value)
+                # With insignificant blanks, "3 .AND." becomes "3.AND.".
+                # Do not consume the relational operator's leading dot as
+                # the optional decimal point of an integer-valued literal.
+                if (
+                    value.endswith(".")
+                    and end < len(text)
+                    and text[end].isalpha()
+                ):
+                    value = value[:-1]
+                    end -= 1
                 hollerith = re.match(r"^(\d+)$", value)
                 if hollerith and end < len(text) and text[end] in "Hh":
                     count = int(value)
@@ -840,10 +850,23 @@ class Generator:
                 return sym.type
             if name in self.unit.statement_functions:
                 return self.unit.symbol(name).type
-            if name in ("IABS", "MAX0", "MIN0", "IFIX", "IDINT", "INT", "ISIGN", "IDIM"):
+            if name in (
+                "IABS",
+                "MAX0",
+                "MAX1",
+                "MIN0",
+                "MIN1",
+                "IFIX",
+                "IDINT",
+                "INT",
+                "ISIGN",
+                "IDIM",
+            ):
                 return INTEGER
             if name.startswith("D") or name == "DBLE":
                 return DOUBLE
+            if name in self.INTRINSICS:
+                return REAL
             if name in self.unit_map and self.unit_map[name].kind == "FUNCTION":
                 return self.unit_map[name].result_type or REAL
             return self.unit.symbol(name).type
@@ -929,7 +952,7 @@ class Generator:
                 ".EQV.": "==",
                 ".NEQV.": "!=",
             }[op]
-            return f"(({left}) {c_op} ({right}))"
+            return f"({left} {c_op} {right})"
         operand_type = (
             DOUBLE
             if DOUBLE in (left_type, right_type)
@@ -1388,7 +1411,8 @@ class Generator:
                 ]
             body = self.simple_statement(tail, stmt)
             cond = self.expression(condition, LOGICAL)
-            return [f"if ({cond}) {{", *["  " + x for x in body], "}"]
+            condition_code = cond if cond.startswith("(") else f"({cond})"
+            return [f"if {condition_code} {{", *["  " + x for x in body], "}"]
         return self.simple_statement(text, stmt)
 
     def do_epilogue(self, info: DoInfo) -> list[str]:

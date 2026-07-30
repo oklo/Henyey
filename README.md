@@ -100,3 +100,35 @@ not the fast environment requested here.
 
 The exact accepted source subset and known omissions are in
 [docs/DIALECT.md](docs/DIALECT.md).
+
+## Henyey Stellar Evolution Program
+
+`henyey.f` is the complete fixed-form Method II stellar evolution program.
+It is a single source deck for both the modern reference compiler and
+IBFTC-64; no compatibility fork is required.
+
+Compile and run with 7094 arithmetic:
+
+```sh
+bin/ibftc -o build/henyey-7094 henyey.f
+build/henyey-7094 < henyey.in > build/henyey-7094.out
+```
+
+Or build, run, and compare all 60 model summaries against the saved
+`gfortran -std=legacy` reference:
+
+```sh
+make check-henyey
+```
+
+On the supplied one-solar-mass deck, both executions converge the static
+model in five iterations and finish model 60 at 6.7123 billion years. At
+the printout precision they agree on the final luminosity (`1.241 Lsun`),
+radius (`0.9522 Rsun`), effective temperature (`6254 K`), central
+temperature (`1.794e7 K`), central density (`157.4 g/cm3`), and central
+hydrogen fraction (`0.3155`). The comparison permits last-place time
+differences caused by the 7094 runtime's 27-bit `REAL` arithmetic.
+
+Additional 7094-mode smoke runs at `0.5` and `0.3` solar masses also
+complete all 60 requested models without a retry, singular matrix, machine
+check, or convergence failure.
