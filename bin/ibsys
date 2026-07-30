@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+export IBFTC_BINDIR="$ROOT/bin"
+if [ -f "$ROOT/lib/ibftc/src/ibsys.py" ]; then
+    exec python3 "$ROOT/lib/ibftc/src/ibsys.py" "$@"
+fi
+exec python3 "$ROOT/src/ibsys.py" "$@"

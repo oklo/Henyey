@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ -f "$ROOT/lib/ibftc/src/ibftc.py" ]; then
+    exec python3 "$ROOT/lib/ibftc/src/ibftc.py" "$@"
+fi
+exec python3 "$ROOT/src/ibftc.py" "$@"
