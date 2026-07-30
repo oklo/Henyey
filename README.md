@@ -1,134 +1,179 @@
-# IBFTC-64
+# Henyey
 
-IBFTC-64 is a clean-room FORTRAN IV compiler and batch environment aimed at
-the programmer-visible behavior of an IBM 7094 scientific installation in
-1964. It compiles fixed-form card images to optimized native C and links a
-runtime that applies the 7094 numeric limits after each operation.
+## A 1964 stellar-evolution calculation, reconstructed
 
-The result is intended for period numerical software, particularly Henyey
-relaxation and stellar-evolution codes. It is much faster than instruction-
-level emulation while retaining the source form, batch workflow, storage
-order, calling convention, and single-precision arithmetic that influence
-such a calculation.
+This repository contains a working reconstruction of Method II from
+L. G. Henyey, J. E. Forbes, and N. L. Gould,
+["A New Method of Automatic Computation of Stellar
+Evolution"](https://adsabs.harvard.edu/pdf/1964ApJ...139..306H),
+*Astrophysical Journal* **139**, 306 (1964).
 
-## Build
+It also contains a new compiler and batch environment for the FORTRAN IV
+programming model of an IBM 7094 installation in 1964. The calculation can
+therefore be run in its period source form and with approximately the
+single-precision arithmetic available at the time, but at modern speed.
 
-The bootstrap requires Python 3 and a C99 compiler. No downloaded packages
-are needed.
+**An important qualification:** the stellar program is a new implementation
+of the published method, not a recovered copy of the original Henyey,
+Forbes, and Gould source deck. The compiler is likewise a clean-room
+reconstruction, not IBM software and not an instruction-by-instruction
+7094 emulator.
 
-```sh
-make check
-bin/ibftc -o build/henyey examples/henyey.f
-build/henyey
-bin/ibsys examples/cards.job
+## You do not need to know GitHub
+
+GitHub calls this project folder a "repository." Everything needed for a
+first look is available through these three links:
+
+1. [Read the FORTRAN IV source deck](henyey.f). It is about 1,000 lines,
+   extensively commented, and is kept in the old fixed-column form.
+2. [See the two input cards](henyey.in). They specify a one-solar-mass star,
+   initial hydrogen abundance `X = 0.708`, `Z = 0.020`, 151 mesh points, and
+   60 models.
+3. [See the complete line-printer-style output](henyey.out). The first
+   model, intermediate structures, iteration history, and final model are
+   all present.
+
+Clicking a file name displays it in the browser. The browser's Back button
+returns here. No command line or knowledge of Git is required simply to
+read the calculation.
+
+To obtain an ordinary folder containing the whole project, use the green
+**Code** button near the top of this page and choose **Download ZIP**.
+
+## What the program does
+
+All dependent quantities are carried on one set of Lagrangian mesh points.
+The source uses the artificial variables introduced in the paper:
+
+```text
+p = P^(1/4)            equation (8)
+q = rho^(1/3)          equation (9)
+l = xi^2 F             equation (10), the pseudoflux
+K = 3 kappa p^3 /
+    (256 pi G sigma T^3)  equation (11)
 ```
 
-`make install PREFIX=$HOME/.local` installs `ibftc` and `ibsys`.
+The program implements the centered difference equations (22)-(26) and
+the block elimination of equations (39)-(46). In the notation of the
+paper, `u = (r,F)` and `v = (T,q)`, with the forward recursion
 
-## Commands
-
-Compile one or more source decks:
-
-```sh
-bin/ibftc -o model model.f opacity.f eos.f
+```text
+delta u_j + alpha_j delta v_j + gamma_j = 0
 ```
 
-Keep the generated C for inspection:
+followed by stored back substitution. Corrections are limited during the
+Newton process; `delta F/F` is tested only at the surface because the
+pseudoflux may pass through zero in the interior.
 
-```sh
-bin/ibftc --emit-c build/model.c -o build/model model.f
+The outermost 0.2 percent of the mass is treated by a separate envelope
+integration. The original scheme interpolated among stored atmosphere
+cases. Here the envelope is reintegrated to obtain the boundary
+derivatives numerically. That is one deliberate difference between this
+reconstruction and the production program described in 1964.
+
+The sequence follows the flow of Figure 2: hydrogen depletion and
+convective mixing, evaluation of the material functions and their
+derivatives, Henyey iterations, and time-step control. A failed step is
+restored and retried with half the time interval.
+
+## Guide to the source
+
+The main program occupies the first part of [henyey.f](henyey.f) and
+controls the evolutionary sequence. Its subroutines are arranged in the
+order in which one would naturally inspect the calculation:
+
+| Routine | Purpose |
+| --- | --- |
+| `START` | Constructs an initial approximation from an `n = 3` Emden model and an inward integration |
+| `SOLVE` | Performs the forward block elimination, surface solution, correction limiting, and back substitution |
+| `PHYSIC` | Evaluates the material functions and their derivatives |
+| `CONVCK` | Locates convective zones using the Schwarzschild criterion |
+| `ZONEQ` | Forms the four linearized difference equations for one interval |
+| `ENVEL` | Integrates the outer envelope and supplies the fitting conditions |
+| `STATE` | Evaluates the ideal-gas-plus-radiation equation of state |
+| `OPAC` | Evaluates the joined classical opacity formulae |
+| `ENUC` | Evaluates proton-proton and CNO energy generation |
+| `MIX` | Homogenizes the composition within connected convective regions |
+| `PRINTM` | Prints a complete model in the line-printer layout |
+
+The physics is intentionally of the period: ideal gas plus radiation;
+Kramers, electron-scattering, and H-minus opacity; proton-proton and CNO
+burning; and an adiabatic gradient of 0.4. Degeneracy, diffusion, and
+modern opacity or reaction tables are absent. This is a study of the
+numerical method and computing environment, not a modern calibrated solar
+model.
+
+## The supplied calculation
+
+The static model converges in five Henyey iterations. Subsequent models
+normally require two iterations. The 60-model sequence reaches:
+
+```text
+MODEL    AGE(YR)       IT   L/LSUN   R/RSUN   TEFF     TC       RHOC    XC
+    1    0.0000E+00     5    0.6977    0.8802   5633   1.382E7    75.66  0.7080
+   60    6.7123E+09     2    1.2410    0.9522   6254   1.794E7   157.40  0.3155
 ```
 
-Run an IBSYS-style card deck:
+The complete radial structures are printed at the initial model, every
+twentieth model, and the final model. In those tables:
+
+| Column | Meaning |
+| --- | --- |
+| `XI` | Lagrangian mesh coordinate |
+| `M/M` | Fractional enclosed mass |
+| `R`, `L` | Radius and luminosity in cgs units |
+| `T`, `RHO`, `P` | Temperature, density, and pressure |
+| `X` | Hydrogen mass fraction |
+| `KAPPA`, `EPS` | Opacity and nuclear energy generation |
+| `CV` | Convective-zone flag |
+
+## The 7094-compatible environment
+
+The compiler, called **IBFTC-64**, accepts 80-column card images with
+statement labels in columns 1-5, continuation in column 6, and source in
+columns 7-72. Arrays are one-based and column-major, arguments are passed
+by reference, and local storage is static.
+
+Its default `REAL` arithmetic is reduced after each operation to the IBM
+7094 single format: an 8-bit excess-128 exponent and a 27-bit explicit
+fraction. Logical units 5 and 6 act as the card reader and line printer.
+The compiler translates the deck to native C, which accounts for the speed;
+the runtime then imposes the selected 7094 numerical limits.
+
+The saved printout was also generated with a modern legacy Fortran
+compiler as an independent reference. An automated comparison runs the
+same 60 models with IBFTC-64. At the printed precision, the two executions
+agree in luminosity, radius, effective temperature, central temperature,
+central density, central pressure, and central hydrogen abundance. The
+largest relative age difference is about `1.5e-5`, from the different
+single-precision arithmetic.
+
+The compiler's precise scope and its known omissions are documented in
+[the FORTRAN IV dialect contract](docs/DIALECT.md). More detail about
+building, running, and the limits of the emulation is in
+[the technical notes](docs/COMPILER.md).
+
+## Reproducing the run (optional)
+
+This section is only for a reader who wants to run the calculation.
+Python 3 and a C compiler are required; no downloaded programming packages
+are needed. In a terminal opened in the project folder:
 
 ```sh
-bin/ibsys model.job
+make check-henyey
 ```
 
-Use `--arithmetic native` to keep the FORTRAN IV language environment but
-skip 7094 precision chopping. The default is `--arithmetic ibm7094`.
+That command compiles the source with 7094 arithmetic, reads the two input
+cards, runs all 60 models, and compares the result with the saved reference
+printout. `make check` additionally runs the compiler's language tests.
 
-Logical units 2 and 5 are standard input and unit 6 is the line printer.
-Assign another logical unit with an environment variable:
-
-```sh
-F4_UNIT_7=opacity.dat bin/ibftc -o model model.f
-F4_UNIT_7=opacity.dat ./model
-```
-
-## Historical Target
-
-The selected target is the IBM 7094 with the IBSYS/IBJOB FORTRAN IV compiler
-workflow. This is a concrete 1964 environment, not a generic mixture of old
-Fortran dialects:
-
-- 80-column ASCII files represent card images.
-- Labels occupy columns 1-5, continuation is column 6, and source is columns
-  7-72. Columns 73-80 are ignored as card sequence fields.
-- `REAL` has the 7094 single format: sign, 8-bit excess-128 exponent, and a
-  27-bit explicit fraction. Results are chopped to that representation.
-- `INTEGER` is constrained to a 35-bit sign/magnitude range.
-- Arrays are 1-based and column-major. Arguments are passed by reference.
-- Local storage is static, matching the practical behavior of these batch
-  compilers.
-- `$JOB`, `$EXECUTE IBJOB`, `$IBJOB`, `$IBFTC`, `$DATA`, `$IBSYS`, and
-  `$STOP` provide a reproducible batch-deck workflow.
-
-IBM's FORTRAN IV compiler was the `IBFTC` component of IBJOB, and source
-decks were introduced by an `$IBFTC` card. See the
-[IBM IBJOB manual](https://www.bitsavers.org/pdf/ibm/7090/C28-6389-1_v13_IBJOB_Jun65.pdf)
-and this [1965 NASA 7094 operations guide](https://ntrs.nasa.gov/api/citations/19670081851/downloads/19670081851.pdf).
-The machine number formats are summarized in the
-[IBM 709 architecture description](https://en.wikipedia.org/wiki/IBM_709).
-A later stellar-evolution calculation explicitly reports using the Berkeley
-IBM 7094 and the Henyey, Forbes, and Gould program:
-[Forbes 1968](https://adsabs.harvard.edu/pdf/1968ApJ...153..495F).
-
-## Fidelity Boundary
-
-This project reproduces the environment at the FORTRAN source and numerical
-model level. It does not execute 7094 instructions, reproduce tape timing,
-encode 6-bit BCD in memory, or use IBM's copyrighted compiler and library
-binaries. Transcendental functions use the host math library and are then
-quantized, so their last bit can differ from the period IBLIB routine.
-Double precision is represented by the host `double`, which has one fewer
-significand bit than the 7094's 54-bit explicit double fraction.
-
-That boundary is deliberate: an actual IBSYS image under a 7094 emulator is
-the reference path for instruction- and library-exact archaeology, but it is
-not the fast environment requested here.
-
-The exact accepted source subset and known omissions are in
-[docs/DIALECT.md](docs/DIALECT.md).
-
-## Henyey Stellar Evolution Program
-
-`henyey.f` is the complete fixed-form Method II stellar evolution program.
-It is a single source deck for both the modern reference compiler and
-IBFTC-64; no compatibility fork is required.
-
-Compile and run with 7094 arithmetic:
+The essential manual sequence is:
 
 ```sh
 bin/ibftc -o build/henyey-7094 henyey.f
 build/henyey-7094 < henyey.in > build/henyey-7094.out
 ```
 
-Or build, run, and compare all 60 model summaries against the saved
-`gfortran -std=legacy` reference:
-
-```sh
-make check-henyey
-```
-
-On the supplied one-solar-mass deck, both executions converge the static
-model in five iterations and finish model 60 at 6.7123 billion years. At
-the printout precision they agree on the final luminosity (`1.241 Lsun`),
-radius (`0.9522 Rsun`), effective temperature (`6254 K`), central
-temperature (`1.794e7 K`), central density (`157.4 g/cm3`), and central
-hydrogen fraction (`0.3155`). The comparison permits last-place time
-differences caused by the 7094 runtime's 27-bit `REAL` arithmetic.
-
-Additional 7094-mode smoke runs at `0.5` and `0.3` solar masses also
-complete all 60 requested models without a retry, singular matrix, machine
-check, or convergence failure.
+In period terms, the first command compiles and links the source deck. The
+second places `henyey.in` on logical unit 5 and sends logical unit 6 to a
+new printout file.
