@@ -123,8 +123,8 @@ normally require two iterations. The 60-model sequence reaches:
 
 ```text
 MODEL    AGE(YR)       IT   L/LSUN   R/RSUN   TEFF     TC       RHOC    XC
-    1    0.0000E+00     5    0.6977    0.8802   5633   1.382E7    75.66  0.7080
-   60    6.7123E+09     2    1.2410    0.9522   6254   1.794E7   157.40  0.3155
+    1    0.0000E+00     5    0.6978    0.8823   5627   1.382E7    75.64  0.7080
+   60    6.7112E+09     2    1.2410    0.9549   6246   1.794E7   157.40  0.3155
 ```
 
 ### Fitting the actual Sun
