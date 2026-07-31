@@ -35,10 +35,34 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    intrinsics, IMPLICIT DOUBLE PRECISION, reordered COMMON). DONE:
    compiles with no warnings and reproduces the single-precision solar
    run (80 models, identical printed values at model 80).
-2. **Composition vector** — carry (X, 3He, 4He) per mesh point; explicit
-   3He rate network with Bahcall (1989) rates and Graboske et al. (1973)
-   screening; convective mixing of all species. Validate in the
-   1964-physics limit (3He equilibrium should reproduce present tracks).
+2. **Composition vector** — DONE (July 2026). (X, 3He, 4He) per mesh
+   point with 4He from the sum rule; pp chain with explicit
+   out-of-equilibrium 3He: p(p,e+nu)d(p,g)3He, 3He(3He,2p)4He, and
+   3He(4He,g)7Be completed through PPII (effective Q-values 6.671,
+   12.860, 18.982 MeV, neutrino losses removed); CNO via the N14(p,g)
+   bottleneck. Cross sections from Caughlan & Fowler (1988), the
+   working equivalent of LBA97's Bahcall (1989). Screening after
+   Graboske et al. (1973): exact Debye-Hueckel weak form plus an
+   intermediate form 0.380*Lambda0**0.860 with the (Z1+Z2)**1.86
+   charge combination, the smaller exponent taken; the composition
+   factor of the intermediate form is simplified (mean z**1.58 over
+   ions) — CHECK against the GDGC paper when a copy is at hand. The
+   PPIII branch (Parker, Bahcall & Fowler 1964 ratios) is not yet
+   installed; below ~1.5e7 K it is under one percent of 7Be
+   completions. 3He advances by a closed-form backward-Euler step
+   (stable for steps long or short against the 3He lifetime); H1
+   explicitly; convective regions mix both species; the 3He step
+   limiter consults only energetically significant points. Card 1
+   gained an optional fourth field: initial 3He (blank/0 = LBA97
+   convention; negative = local equilibrium, for comparison with the
+   1964-physics program). Validation: equilibrium-init solar model
+   converges to L = 0.679 Lsun at ZAMS (root code: 0.698, a ~3%
+   rate-difference effect) and evolves normally; an X3=0 solar model
+   starts compact and hot (rho_c = 96) and the core expands as 3He
+   builds (rho_c -> 87), the LBA97 signature; a 0.3 Msun model runs
+   200 models to 1.7e11 yr in 1-2 iterations per step, accumulating
+   2.3% central 3He with the chain terminating at 3He, as expected at
+   Tc ~ 6e6 K.
 3. **Tabular EOS** — SCVH95 with C1-continuous interpolation (smooth
    derivatives are required by the Newton scheme; see the discontinuity
    discussion and Fig. 3 of HFG 1964). Brown-dwarf-capable at the low
@@ -61,6 +85,38 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    disabling the three ingredients identified in LBA97 section 4;
    (iii) complete evolutionary tracks for 0.25-0.43 Msun, where a
    hydrogen shell burns over a degenerate helium core.
+
+## Details recovered from Peter Bodenheimer (July 2026)
+
+Peter's recollections of the production 1964 Berkeley code, which shift
+some phase priorities:
+
+- **Scaled units**: mass 1e30 g, length 1e10 cm, time 1e5 s,
+  temperature 1e7 K. (In these units G = 667.4.) Unknown whether the
+  UNIVAC version used them.
+- **EOS**: ideal gas + radiation + partial-to-complete degeneracy —
+  the 1964 production code already carried degeneracy.
+- **Atmosphere (Vardya's program)**: partial ionization of H and He and
+  of the outermost electron of some metals (e.g. Fe) for the electron
+  pressure; Boehm-Vitense mixing-length convection with superadiabatic
+  gradients; the ratio of mixing length to scale height was a free
+  parameter — "if this is put in, it should be possible to fit the
+  Sun."
+- **Nuclear**: all three pp branches computed; 3He tracked and stored
+  (the chain can terminate there in very low-mass stars); CNO followed
+  C12, N14, and O16 with all rates computed, no equilibrium assumption;
+  rates as available in the early 1960s.
+- **Opacities**: uncertain; Los Alamos tables were just appearing;
+  probably an analytic approximation; no molecular opacities.
+- Peter's own Fortran translation "really didn't have problems with
+  convection zone boundaries."
+
+Implications: the phase-2 network is closer to the original 1964 code
+than to a simplification of it; phase 5's mixing-length alpha is the
+historically correct second solar-calibration knob; a phase-2b
+(PPIII branch, C12/N14/O16 non-equilibrium CNO) would complete the
+original's network; degeneracy in the EOS (phase 3) was present even
+in 1964.
 
 ## Historical notes recovered from LB93
 
