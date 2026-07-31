@@ -114,6 +114,27 @@ MODEL    AGE(YR)       IT   L/LSUN   R/RSUN   TEFF     TC       RHOC    XC
    60    6.7123E+09     2    1.2410    0.9522   6254   1.794E7   157.40  0.3155
 ```
 
+### Fitting the actual Sun
+
+A stellar-evolution code of this era was tested by asking it to reproduce
+the Sun at the solar age. With the heavy-element fraction held at
+`Z = 0.020`, an initial hydrogen abundance of `X = 0.709` brings the model
+to `L = 0.998 L_sun` at an age of 4.6 billion years. The card deck for
+this calibrated run is supplied as [henyey-solar.in](henyey-solar.in)
+(80 models; the calibration was performed with the 7094 arithmetic).
+
+The calibrated model has `R = 0.914 R_sun` and `Teff = 6047 K` — about
+nine percent too compact and 250 K too hot. That residual is expected,
+and is itself of historical interest. The envelope here is strictly
+adiabatic below the photosphere, so convection is perfectly efficient.
+The superadiabatic layer that would expand the radius to its observed
+value is what the Böhm-Vitense (1958) mixing-length treatment provides;
+the production 1964 program carried that physics in its separate
+atmosphere integrations, and the mixing-length parameter together with
+the initial helium abundance later became the canonical two-parameter
+solar calibration. The present reconstruction is therefore a one-knob
+solar model, calibrated in luminosity only.
+
 The complete radial structures are printed at the initial model, every
 twentieth model, and the final model. In those tables:
 
