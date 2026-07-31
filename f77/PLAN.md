@@ -72,7 +72,14 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    scaling.
 5. **Atmosphere** — LB93 case-B radiative atmosphere with MLT in the
    nonadiabatic layers, supplying the fitting conditions and their
-   (R, L) derivatives as in the present ENVEL.
+   (R, L) derivatives as in the present ENVEL. PARTIAL (July 2026):
+   Boehm-Vitense MLT with free alpha (card 2, blank = 1.5) is
+   installed in ENVEL of both code lines; the solar-radius experiment
+   shows the full alpha range spans only R = 0.914-0.927 Rsun with the
+   ideal-gas envelope, isolating Saha ionization thermodynamics (the
+   Vardya physics) as the binding constraint — that is the remaining
+   work of this phase, together with the tau-integration of the
+   case-B boundary.
 6. **Validation against the published record** — LBA97 Table 1
    (0.08, 0.15, 0.20 Msun vs. Burrows et al. 1993); the 0.1 Msun
    narrative: ZAMS at Teff = 2228 K, log L = -3.38; 3He peak mass

@@ -76,6 +76,19 @@ convective mixing, evaluation of the material functions and their
 derivatives, Henyey iterations, and time-step control. A failed step is
 restored and retried with half the time interval.
 
+Internally the program works in the scaled units of the original
+Berkeley production code, as recalled by Peter Bodenheimer: mass in
+units of 10^30 g, length 10^10 cm, time 10^5 s, and temperature 10^7 K
+(so that G = 666.8 and the density unit is 1 g cm^-3). All working
+quantities are then of moderate magnitude, which is not a nicety on a
+machine with a 27-bit fraction. Printed output is converted back to
+cgs. Where the layers of the envelope integration are convectively
+unstable, the temperature gradient now comes from the Bohm-Vitense
+(1958) mixing-length theory; the ratio of mixing length to pressure
+scale height is a new final field on the second input card (blank
+selects 1.5), again following Bodenheimer's description of the
+production program's Vardya atmosphere.
+
 ## Guide to the source
 
 The main program occupies the first part of [henyey.f](henyey.f) and
@@ -116,24 +129,28 @@ MODEL    AGE(YR)       IT   L/LSUN   R/RSUN   TEFF     TC       RHOC    XC
 
 ### Fitting the actual Sun
 
-A stellar-evolution code of this era was tested by asking it to reproduce
-the Sun at the solar age. With the heavy-element fraction held at
-`Z = 0.020`, an initial hydrogen abundance of `X = 0.709` brings the model
-to `L = 0.998 L_sun` at an age of 4.6 billion years. The card deck for
-this calibrated run is supplied as [henyey-solar.in](henyey-solar.in)
-(80 models; the calibration was performed with the 7094 arithmetic).
+A stellar-evolution code of this era was tested by asking it to
+reproduce the Sun at the solar age. With the heavy-element fraction
+held at `Z = 0.020`, an initial hydrogen abundance of `X = 0.709`
+brings the model to `L = 0.999 L_sun` at an age of 4.6 billion years.
+The card deck for this calibrated run is supplied as
+[henyey-solar.in](henyey-solar.in).
 
-The calibrated model has `R = 0.914 R_sun` and `Teff = 6047 K` — about
-nine percent too compact and 250 K too hot. That residual is expected,
-and is itself of historical interest. The envelope here is strictly
-adiabatic below the photosphere, so convection is perfectly efficient.
-The superadiabatic layer that would expand the radius to its observed
-value is what the Böhm-Vitense (1958) mixing-length treatment provides;
-the production 1964 program carried that physics in its separate
-atmosphere integrations, and the mixing-length parameter together with
-the initial helium abundance later became the canonical two-parameter
-solar calibration. The present reconstruction is therefore a one-knob
-solar model, calibrated in luminosity only.
+The luminosity fit leaves the radius short: `R = 0.916 R_sun` and
+`Teff = 6040 K` at the solar age. With the mixing-length parameter now
+installed, the envelope can be driven smoothly between its two limits —
+fully adiabatic convection (large alpha, `R = 0.914`) and a fully
+radiative envelope (alpha near zero, `R = 0.927`) — and the entire
+accessible range remains about seven percent too compact. That
+localizes the deficit precisely: it does not lie in the treatment of
+convection but in the envelope's equation of state, which here is an
+ideal fully ionized gas. The partial ionization of hydrogen and helium
+depresses the adiabatic gradient far below 0.4 through the ionization
+zones and thickens the envelope; Bodenheimer recalls that Vardya's
+atmosphere program carried exactly this physics (including the electron
+contribution of ionized metals), which is why the production code could
+fit the Sun and this reconstruction, so far, cannot. Installing Saha
+ionization in the envelope integration is the identified next step.
 
 The complete radial structures are printed at the initial model, every
 twentieth model, and the final model. In those tables:
