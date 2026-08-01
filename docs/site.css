@@ -50,7 +50,7 @@ a:hover { text-decoration: underline; }
 .mono { font-family: var(--mono); font-size: 0.88em; }
 
 /* ---- title page ---- */
-.hero { max-width: 840px; margin: 0; padding: 56px 28px 18px; position: relative; }
+.hero { max-width: 840px; margin: 0 auto; padding: 64px 24px 18px; position: relative; }
 .theme-toggle {
   position: absolute; top: 20px; right: 24px; background: none; border: 1px solid var(--rule);
   color: var(--ink-2); border-radius: 50%; width: 36px; height: 36px; font-size: 17px; cursor: pointer;
@@ -73,7 +73,7 @@ h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(26px, 4vw, 40
 .btn:hover { text-decoration: none; filter: brightness(1.06); }
 
 /* ---- chapters ---- */
-main { max-width: 1020px; margin: 0; padding: 0 28px 72px; }
+main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 .section { margin: 50px 0; }
 .section h2 { font-size: 16.5px; margin-bottom: 9px; font-weight: 700; }
 .secno { color: var(--ink); margin-right: 14px; }
@@ -90,9 +90,10 @@ main { max-width: 1020px; margin: 0; padding: 0 28px 72px; }
   font-family: var(--mono); font-size: 12.5px; padding: 6px 8px; width: 92px;
   border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); color: var(--ink);
 }
-#cards { display: grid; gap: 16px; margin: 14px 0; }
-.punchcard { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.22)); }
+#cards { display: grid; gap: 10px; margin: 14px 0; }
+.punchcard { width: 100%; max-width: 540px; height: auto; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.22)); }
 .deck-listing {
+  max-width: 540px;
   font-family: var(--mono); font-size: 11px; color: var(--ink-3); background: var(--surface);
   border: 1px solid var(--rule); border-radius: 4px; padding: 8px 12px; overflow-x: auto; margin: 4px 0 0;
 }
@@ -133,7 +134,7 @@ main { max-width: 1020px; margin: 0; padding: 0 28px 72px; }
   font-family: var(--mono); font-size: 11.5px; padding: 6px 9px; border-radius: 4px; line-height: 1.45;
   max-width: 260px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
-footer { border-top: 1px solid var(--rule); padding: 18px 28px 36px; text-align: left; }
+footer { border-top: 1px solid var(--rule); padding: 18px 24px 36px; text-align: center; }
 footer p { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
 @media (max-width: 640px) { .controls input { width: 84px; } .printer { height: 260px; } }
 
