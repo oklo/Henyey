@@ -43,20 +43,20 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--paper); color: var(--ink);
-  font-family: var(--serif); line-height: 1.52; font-size: 15.5px;
+  font-family: var(--serif); line-height: 1.52; font-size: 15px;
 }
 a { color: var(--red); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .mono { font-family: var(--mono); font-size: 0.88em; }
 
 /* ---- title page ---- */
-.hero { max-width: 840px; margin: 0 auto; padding: 76px 24px 20px; position: relative; }
+.hero { max-width: 840px; margin: 0; padding: 56px 28px 18px; position: relative; }
 .theme-toggle {
   position: absolute; top: 20px; right: 24px; background: none; border: 1px solid var(--rule);
   color: var(--ink-2); border-radius: 50%; width: 36px; height: 36px; font-size: 17px; cursor: pointer;
 }
 .overline { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; color: var(--ink-3); margin: 0 0 10px; }
-h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 4.8vw, 48px);
+h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(26px, 4vw, 40px);
      letter-spacing: 0.04em; margin: 0; line-height: 1; }
 .tagline { font-size: clamp(14.5px, 1.9vw, 16px); color: var(--ink-2); margin: 12px 0 2px; }
 .volume { font-style: italic; color: var(--ink-2); margin: 0 0 18px; font-size: 13.5px; }
@@ -73,15 +73,15 @@ h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 4.8vw, 
 .btn:hover { text-decoration: none; filter: brightness(1.06); }
 
 /* ---- chapters ---- */
-main { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
-.section { margin: 60px 0; }
-.section h2 { font-size: 17.5px; margin-bottom: 9px; font-weight: 700; }
+main { max-width: 1020px; margin: 0; padding: 0 28px 72px; }
+.section { margin: 50px 0; }
+.section h2 { font-size: 16.5px; margin-bottom: 9px; font-weight: 700; }
 .secno { color: var(--ink); margin-right: 14px; }
 .section > p, .prose p { max-width: 66ch; text-align: justify; hyphens: auto; margin: 0 0 0.2em; }
 .prose p + p { text-indent: 1.6em; margin-top: 0.2em; }
 .section > p { color: var(--ink-2); }
 .prose p { color: var(--ink); }
-.fineprint { font-size: 12.2px; color: var(--ink-3); text-align: left !important; text-indent: 0 !important; margin-top: 0.9em !important; }
+.fineprint { font-size: 11.9px; color: var(--ink-3); text-align: left !important; text-indent: 0 !important; margin-top: 0.9em !important; }
 
 /* ---- deck ---- */
 .controls { display: flex; flex-wrap: nowrap; gap: 10px 12px; margin: 16px 0 12px; align-items: end; overflow-x: auto; padding-bottom: 4px; }
@@ -116,7 +116,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
 .chartgrid.three { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .chartcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px 10px; margin: 0; }
 .chartcard.wide { grid-column: 1 / -1; margin-top: 18px; }
-.caption { font-size: 12.2px; color: var(--ink-2); margin: 6px 2px 2px; text-align: left; }
+.caption { font-size: 11.9px; color: var(--ink-2); margin: 6px 2px 2px; text-align: left; }
 .caption b { font-weight: 700; }
 .chartbox { width: 100%; }
 .chartbox svg { display: block; width: 100%; height: auto; }
@@ -133,7 +133,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
   font-family: var(--mono); font-size: 11.5px; padding: 6px 9px; border-radius: 4px; line-height: 1.45;
   max-width: 260px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
-footer { border-top: 1px solid var(--rule); padding: 20px 24px 40px; text-align: center; }
+footer { border-top: 1px solid var(--rule); padding: 18px 28px 36px; text-align: left; }
 footer p { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
 @media (max-width: 640px) { .controls input { width: 84px; } .printer { height: 260px; } }
 

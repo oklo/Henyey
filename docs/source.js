@@ -131,8 +131,8 @@ function flowchart() {
     arr(`M${H.cx} ${H.bot} V${I.top - 2}`) +
     /* NO: loop back to the physics */
     arr(`M${I.left} ${I.top + 16} H28 V${(D.top + D.bot)/2} H${D.left - 2}`) +
-    /* YES: to the right-hand column */
-    arr(`M${I.right} ${I.top + 16} H${J.cx} V${J.top - 2}`) +
+    /* YES: around the outside, into the right-hand column */
+    arr(`M${I.right} ${I.top + 16} H852 V${(J.top + J.bot) / 2} H${J.right + 2}`) +
     /* down the right column */
     arr(`M${J.cx} ${J.bot} V${K.top - 2}`) +
     arr(`M${K.cx} ${K.bot} V${L.top - 2}`) +
