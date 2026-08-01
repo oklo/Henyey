@@ -13,17 +13,17 @@
 <body>
 <header class="hero">
   <button id="themeToggle" class="theme-toggle" aria-label="Toggle color scheme">◐</button>
-  <p class="overline">BERKELEY ASTRONOMICAL DEPARTMENT · METHOD II · RECONSTRUCTED</p>
   <h1>HENYEY</h1>
-  <p class="tagline">A 1964 stellar-evolution calculation, running at the speed of now.</p>
-  <p class="volume">Mainly stars, matrices, and heat</p>
   <p class="lede">
-    In 1964, Louis Henyey, James Forbes, and Nancy Gould published the numerical
-    method that still sits inside nearly every stellar-evolution code on Earth.
-    Their program ran overnight on an IBM&nbsp;7094. This page carries a faithful
-    reconstruction — period FORTRAN&nbsp;IV, punched-card input, line-printer
-    output, 27-bit arithmetic — compiled to WebAssembly. Your browser is the
-    mainframe now. The overnight job takes about half a second.
+    In 1964, Louis Henyey, James Forbes, and Nancy Gould of the Berkeley
+    Astronomical Department published the numerical method that still sits
+    inside nearly every stellar-evolution code on Earth. This page carries a
+    faithful reconstruction of their calculation: the difference equations and
+    boundary conditions exactly as the paper gives them, written in period
+    FORTRAN&nbsp;IV with punched-card input and line-printer output, and
+    compiled by an equally faithful reconstruction of a 7094-era
+    FORTRAN&nbsp;IV compiler, arithmetic and all. Their program ran overnight.
+    Punch a deck below and run it now.
   </p>
   <p class="lede-actions"><a class="btn" href="#deck">Punch a deck ↓</a>
      <a class="btn ghost" href="source.html">Read the program, annotated</a></p>
@@ -133,8 +133,12 @@
      a Henyey solver at its heart.</p>
   <p class="fineprint">This site runs a clean-room reconstruction: a new
      implementation of the published method in period FORTRAN IV, compiled by a
-     new 7094-dialect compiler, not recovered original source. The full family
-     tree, including a FORTRAN 77 line under active development, lives in
+     new 7094-dialect compiler, not recovered original source. The compiler
+     translates the deck to C, and WebAssembly carries it into your browser —
+     every visitor's machine becomes the mainframe, running at the 7094's own
+     27-bit arithmetic, so the overnight job of 1964 completes in about half a
+     second, entirely on your side of the wire. The full family tree, including
+     a FORTRAN 77 line under active development, lives in
      <a href="https://github.com/oklo/Henyey">the repository</a>.</p>
 </section>
 </main>
