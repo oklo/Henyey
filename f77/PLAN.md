@@ -46,7 +46,13 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    intermediate form 0.380*Lambda0**0.860 with the (Z1+Z2)**1.86
    charge combination, the smaller exponent taken; the composition
    factor of the intermediate form is simplified (mean z**1.58 over
-   ions) — CHECK against the GDGC paper when a copy is at hand. The
+   ions) — VERIFIED August 2026 against the GDGC paper itself and
+   replaced by the exact prescription: H12 = f(xi12)*Lambda12**0.860
+   with f(xi) = 0.380*((1+xi)**1.86 - xi**1.86 - 1)/xi**0.86,
+   xi12 = Z1*Z2/<z**2>, and Lambda12 equal to the weak-screening
+   exponent (GDGC eqs. 14, 16, 19; reproduces their Table 3 charge
+   factors to better than one percent). Strong screening
+   (Lambda12 > ~2) remains uninstalled. The
    PPIII branch (Parker, Bahcall & Fowler 1964 ratios) is not yet
    installed; below ~1.5e7 K it is under one percent of 7Be
    completions. 3He advances by a closed-form backward-Euler step
