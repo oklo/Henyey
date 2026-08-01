@@ -103,18 +103,22 @@ order in which one would naturally inspect the calculation:
 | `CONVCK` | Locates convective zones using the Schwarzschild criterion |
 | `ZONEQ` | Forms the four linearized difference equations for one interval |
 | `ENVEL` | Integrates the outer envelope and supplies the fitting conditions |
-| `STATE` | Evaluates the ideal-gas-plus-radiation equation of state |
-| `OPAC` | Evaluates the joined classical opacity formulae |
+| `SAHA` | Solves the envelope's Saha ionization equilibrium (HVB 1965) |
+| `STATE` | Evaluates the BFGH (1965) Appendix A equation of state, degenerate electrons included |
+| `OPAC` | Evaluates the BFGH (1965) Appendix B opacity, H-minus joined at low temperature |
 | `ENUC` | Evaluates proton-proton and CNO energy generation |
 | `MIX` | Homogenizes the composition within connected convective regions |
 | `PRINTM` | Prints a complete model in the line-printer layout |
 
-The physics is intentionally of the period: ideal gas plus radiation;
-Kramers, electron-scattering, and H-minus opacity; proton-proton and CNO
-burning; and an adiabatic gradient of 0.4. Degeneracy, diffusion, and
-modern opacity or reaction tables are absent. This is a study of the
-numerical method and computing environment, not a modern calibrated solar
-model.
+The physics is the Berkeley group's own, restored from the appendices of
+Bodenheimer, Forbes, Gould & Henyey (1965): their Keller-Meyerott
+opacity formula with Mestel conduction, their degenerate-electron
+equation of state, Saha ionization and Bohm-Vitense mixing-length
+convection in the envelope integration, H-minus opacity standing in at
+low temperature for Vardya's atmospheric table, and proton-proton and
+CNO burning. Diffusion and modern opacity or reaction tables are
+absent. This is a study of the numerical method and computing
+environment, not a modern calibrated solar model.
 
 ## The supplied calculation
 
@@ -123,34 +127,28 @@ normally require two iterations. The 60-model sequence reaches:
 
 ```text
 MODEL    AGE(YR)       IT   L/LSUN   R/RSUN   TEFF     TC       RHOC    XC
-    1    0.0000E+00     5    0.6978    0.8823   5627   1.382E7    75.64  0.7080
-   60    6.7112E+09     2    1.2410    0.9549   6246   1.794E7   157.40  0.3155
+    1    0.0000E+00    13    0.7954    0.6746   6649   1.372E7    87.32  0.7080
+   60    6.2736E+09     2    1.2670    0.7932   6890   1.767E7   178.30  0.3323
 ```
 
 ### Fitting the actual Sun
 
-A stellar-evolution code of this era was tested by asking it to
-reproduce the Sun at the solar age. With the heavy-element fraction
-held at `Z = 0.020`, an initial hydrogen abundance of `X = 0.709`
-brings the model to `L = 0.999 L_sun` at an age of 4.6 billion years.
-The card deck for this calibrated run is supplied as
-[henyey-solar.in](henyey-solar.in).
-
-The luminosity fit leaves the radius short: `R = 0.916 R_sun` and
-`Teff = 6040 K` at the solar age. With the mixing-length parameter now
-installed, the envelope can be driven smoothly between its two limits —
-fully adiabatic convection (large alpha, `R = 0.914`) and a fully
-radiative envelope (alpha near zero, `R = 0.927`) — and the entire
-accessible range remains about seven percent too compact. That
-localizes the deficit precisely: it does not lie in the treatment of
-convection but in the envelope's equation of state, which here is an
-ideal fully ionized gas. The partial ionization of hydrogen and helium
-depresses the adiabatic gradient far below 0.4 through the ionization
-zones and thickens the envelope; Bodenheimer recalls that Vardya's
-atmosphere program carried exactly this physics (including the electron
-contribution of ionized metals), which is why the production code could
-fit the Sun and this reconstruction, so far, cannot. Installing Saha
-ionization in the envelope integration is the identified next step.
+The calibration experiment is ongoing, and its history so far is itself
+a faithful reenactment. With an ideal fully ionized envelope the model
+sun came out seven percent compact, and the mixing-length parameter
+could not close the gap - the entire alpha range spanned only
+R = 0.914-0.927 R_sun, isolating the envelope thermodynamics. Restoring
+Saha ionization (the Vardya physics) made the envelope follow the true
+ionization-depressed adiabat and swung the radius compact; restoring
+the 1965 opacity and degeneracy appendices swung it back large. With
+the full stack the luminosity calibrates readily but the radius still
+sits about 25 percent compact and nearly alpha-independent: the
+remaining unrestored ingredient is the production code's outer
+radiative layer - the blanketed T-tau relation and Vardya's
+atmospheric opacity table of Henyey, Vardya & Bodenheimer (1965) -
+which is the next piece scheduled. Henyey's group needed a separate
+paper for exactly this layer; the reconstruction keeps rediscovering
+why.
 
 The complete radial structures are printed at the initial model, every
 twentieth model, and the final model. In those tables:

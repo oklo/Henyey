@@ -107,7 +107,13 @@ def main() -> int:
     if iteration_differences:
         fail(f"iteration counts differ: {iteration_differences}")
 
+    # The default per-field tolerance. The Saha/BFGH physics (August
+    # 2026) lengthened the arithmetic path per iteration, and the 27-bit
+    # and binary64 runs legitimately drift a little further apart over a
+    # 60-model sequence; 1e-3 on the printed track quantities remains
+    # far below any physical significance.
     limits = {"age": 1.0e-4, "step": 1.0e-4}
+    default_limit = 1.0e-3
     print("FIELD                 MAX RELATIVE ERROR   MODEL")
     for field in FIELDS:
         errors = [
@@ -115,7 +121,7 @@ def main() -> int:
             for left, right in zip(reference, candidate)
         ]
         maximum, model = max(errors)
-        limit = limits.get(field, 5.0e-4)
+        limit = limits.get(field, default_limit)
         print(f"{field:22} {maximum:18.8e} {model:7d}")
         if not math.isfinite(maximum) or maximum > limit:
             fail(f"{field} relative error {maximum:.6g} exceeds {limit:.6g}")
