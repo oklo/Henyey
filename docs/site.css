@@ -10,7 +10,7 @@
 :root {
   color-scheme: light;
   --paper: #fbf9f4;         /* book stock */
-  --surface: #ffffff;
+  --surface: #fbf9f4;       /* no white panels - everything on the stock */
   --card: #f0e5c9;          /* 5081 manila */
   --cardink: #7d97b8;       /* 5081 light-blue printing */
   --ink: #1d1a16;           /* text and figure ink */
@@ -26,7 +26,7 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #191713; --surface: #201d18; --card: #2c2820; --cardink: #6d84a3;
+  --paper: #191713; --surface: #191713; --card: #2c2820; --cardink: #6d84a3;
   --ink: #eae5da; --ink-2: #b5afa3; --ink-3: #7e786d; --rule: #322e26;
   --red: #d0605c; --band: rgba(190, 170, 120, 0.14);
   --greenbar: rgba(120, 160, 140, 0.05);
@@ -34,7 +34,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper: #191713; --surface: #201d18; --card: #2c2820; --cardink: #6d84a3;
+    --paper: #191713; --surface: #191713; --card: #2c2820; --cardink: #6d84a3;
     --ink: #eae5da; --ink-2: #b5afa3; --ink-3: #7e786d; --rule: #322e26;
     --red: #d0605c; --band: rgba(190, 170, 120, 0.14);
     --greenbar: rgba(120, 160, 140, 0.05);
