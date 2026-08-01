@@ -215,22 +215,28 @@ function lineChart(el, spec) {
     const a = X(b[0]), c = X(b[1]);
     s += `<rect x="${Math.min(a,c)}" y="${T}" width="${Math.abs(c-a)}" height="${H-T-B}" fill="var(--band)"/>`;
   }
-  /* grid + axes */
-  const ytk = spec.logy ? niceTicks(y0, y1, 4).filter(v => true) : niceTicks(y0, y1, 4);
+  /* the full figure box, ticks inward on all four sides, journal style */
+  const ytk = niceTicks(y0, y1, 4), xtk = niceTicks(x0, x1, 5);
   for (const v of ytk) {
-    s += `<line class="gridline" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/>`;
+    s += `<line x1="${L}" x2="${L+5}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" stroke-width="0.9"/>`;
+    s += `<line x1="${W-R}" x2="${W-R-5}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" stroke-width="0.9"/>`;
     const lab = spec.logy ? "10^" + fmtNum(v) : fmtNum(v);
-    s += `<text class="tick" x="${L-6}" y="${Y(v)+3.5}" text-anchor="end" font-family="var(--serif)" font-size="11" fill="var(--ink-3)">${lab}</text>`;
+    s += `<text class="tick" x="${L-5}" y="${Y(v)+3}" text-anchor="end" font-family="var(--serif)" font-size="9.5" fill="var(--ink-2)">${lab}</text>`;
   }
-  for (const v of niceTicks(x0, x1, 5)) {
-    s += `<text x="${X(v)}" y="${H-B+16}" text-anchor="middle" font-family="var(--serif)" font-size="11" fill="var(--ink-3)">${fmtNum(v)}</text>`;
+  for (const v of xtk) {
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${H-B}" y2="${H-B-5}" stroke="var(--ink)" stroke-width="0.9"/>`;
+    s += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${T+5}" stroke="var(--ink)" stroke-width="0.9"/>`;
+    s += `<text x="${X(v)}" y="${H-B+13}" text-anchor="middle" font-family="var(--serif)" font-size="9.5" fill="var(--ink-2)">${fmtNum(v)}</text>`;
   }
-  s += `<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="var(--rule)"/>`;
-  s += `<text x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="12" fill="var(--ink-3)">${spec.xlab}</text>`;
+  s += `<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="none" stroke="var(--ink)" stroke-width="1.1"/>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="10.5" fill="var(--ink-2)">${spec.xlab}</text>`;
   /* series */
+  const lw = spec.lw || 1.6;
   let d = "";
   for (let i = 0; i < pts.length; i++) d += (i ? "L" : "M") + X(xs[i]).toFixed(1) + " " + Y(ys[i]).toFixed(1);
-  s += `<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="${lw}" stroke-linejoin="round"/>`;
+  if (spec.dots) for (let i = 0; i < pts.length; i++)
+    s += `<circle cx="${X(xs[i]).toFixed(1)}" cy="${Y(ys[i]).toFixed(1)}" r="1.9" fill="var(--ink)"/>`;
   const li = pts.length - 1;
   s += `<circle cx="${X(xs[li])}" cy="${Y(ys[li])}" r="3.4" fill="var(--red)"/>`;
   s += `<line id="ch" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink-3)" stroke-width="1" visibility="hidden"/>`;
@@ -268,6 +274,7 @@ function renderAll() {
   const tk = run.track;
   lineChart(document.getElementById("hrBox"), {
     pts: tk.map(p => ({ x: p.Teff, y: p.L, p })), logy: true, xrev: true,
+    dots: true, lw: 0.6,
     xlab: "Teff (K) — hotter to the left",
     tip: q => `model ${q.p.model} · ${fmtNum(ageGyr(q.p))} Gyr<br>L = ${fmtNum(q.p.L)} L☉ · Teff = ${Math.round(q.p.Teff)} K<br>R = ${fmtNum(q.p.R)} R☉`,
   });

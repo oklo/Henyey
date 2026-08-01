@@ -104,7 +104,6 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 /* ---- printer ---- */
 .printer {
   background: var(--surface); border: 1px solid var(--rule); border-radius: 4px;
-  max-width: var(--measure);
   height: 320px; overflow: hidden; position: relative; margin-top: 14px;
 }
 .printer-scroll {
@@ -123,6 +122,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 .caption b { font-weight: 700; }
 .chartbox { width: 100%; }
 .chartbox svg { display: block; width: 100%; height: auto; }
+#hrBox svg { max-width: 500px; }
 .scrub-row { display: flex; gap: 14px; align-items: center; margin: 4px 0 8px; }
 .scrub-row input[type=range] { flex: 1; accent-color: var(--red); }
 .tableview { margin-top: 16px; font-size: 13px; }
