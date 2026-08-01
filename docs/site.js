@@ -63,26 +63,38 @@ function punches(ch) {
   return [];
 }
 function cardSVG(text) {
+  /* IBM 5081-style card: true aspect (7 3/8 x 3 1/4 in), manila stock,
+     light-blue printing, upper-left corner cut, tall rectangular chads. */
   const padded = (text + " ".repeat(80)).slice(0, 80);
-  const X0 = 26, PITCH = 9.72, W = 836, H = 258, y0 = 46, ry = 18.6;
+  const W = 830, H = 366, X0 = 26, PITCH = 9.72;
+  const ROWY = r => 58 + r * 25.65;            /* rows 12,11,0..9 */
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   let s = `<svg class="punchcard" viewBox="0 0 ${W} ${H}" role="img" aria-label="Punched card: ${text.trim()}">`;
-  s += `<path d="M18 2 h${W-36} a10 10 0 0 1 10 10 v${H-24} a10 10 0 0 1 -10 10 h-${W-36} a10 10 0 0 1 -10 -10 v-${H-52} z" fill="var(--card)" stroke="var(--rule)"/>`;
-  /* printed digit rows (rows 0-9) */
+  /* stock with upper-left corner cut */
+  s += `<path d="M 26 2 H 820 A 8 8 0 0 1 828 10 V 356 A 8 8 0 0 1 820 364 ` +
+       `H 10 A 8 8 0 0 1 2 356 V 24 Z" fill="var(--card)" stroke="var(--rule)"/>`;
+  /* printed digit rows 0-9, 5081 light-blue ink */
   for (let r = 0; r < 10; r++) {
-    const y = y0 + (r + 2) * ry;
-    s += `<text x="${X0}" y="${y}" textLength="${80 * PITCH}" lengthAdjust="spacingAndGlyphs" ` +
-         `font-family="var(--mono)" font-size="9.5" fill="var(--card-ink)" opacity="0.55">` +
-         String(r).repeat(80) + `</text>`;
+    s += `<text x="${X0}" y="${ROWY(r + 2) + 3.2}" textLength="${80 * PITCH}" lengthAdjust="spacingAndGlyphs" ` +
+         `font-family="var(--mono)" font-size="8.6" fill="var(--cardink)">` + String(r).repeat(80) + `</text>`;
   }
-  /* interpreted characters along the top */
-  s += `<text x="${X0}" y="24" textLength="${80 * PITCH}" lengthAdjust="spacingAndGlyphs" ` +
-       `xml:space="preserve" font-family="var(--mono)" font-size="11" fill="var(--ink-2)">` +
-       padded.replace(/&/g,"&amp;").replace(/</g,"&lt;") + `</text>`;
+  /* column numbers, tiny, in two bands (above row 1 and below row 9) */
+  for (const by of [ROWY(2) - 14.5, ROWY(11) + 12.5]) {
+    for (let c = 0; c < 80; c++) {
+      s += `<text x="${X0 + c * PITCH + PITCH / 2}" y="${by}" text-anchor="middle" ` +
+           `font-family="var(--mono)" font-size="5" fill="var(--cardink)">${c + 1}</text>`;
+    }
+  }
+  /* form mark */
+  s += `<text x="12" y="360" font-family="var(--mono)" font-size="5.5" fill="var(--cardink)">HFG 5081</text>`;
+  /* interpreted characters along the top edge, black ribbon ink */
+  s += `<text x="${X0}" y="22" textLength="${80 * PITCH}" lengthAdjust="spacingAndGlyphs" ` +
+       `xml:space="preserve" font-family="var(--mono)" font-size="10.5" fill="var(--ink-2)">` +
+       esc(padded) + `</text>`;
   /* punches */
   for (let c = 0; c < 80; c++) {
     for (const r of punches(padded[c])) {
-      const y = y0 + r * ry;
-      s += `<rect x="${X0 + c * PITCH - 0.6}" y="${y - 12}" width="6.4" height="14" rx="1.4" fill="var(--ink)"/>`;
+      s += `<rect x="${X0 + c * PITCH + 1.76}" y="${ROWY(r) - 8.2}" width="6.2" height="15" rx="0.8" fill="#17150f"/>`;
     }
   }
   s += `</svg>`;
@@ -187,7 +199,7 @@ function lineChart(el, spec) {
   const W = 460, H = 240, L = 56, R = 12, T = 12, B = 34;
   const pts = spec.pts.filter(p => isFinite(p.x) && isFinite(p.y) && (!spec.logy || p.y > 0));
   el.innerHTML = "";
-  if (pts.length < 2) { el.innerHTML = `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--ink-3)">awaiting job</text></svg>`; return; }
+  if (pts.length < 2) { el.innerHTML = `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="13" fill="var(--ink-3)">awaiting job</text></svg>`; return; }
   const ys = pts.map(p => spec.logy ? Math.log10(p.y) : p.y);
   const xs = pts.map(p => p.x);
   let x0 = Math.min(...xs), x1 = Math.max(...xs);
@@ -197,33 +209,32 @@ function lineChart(el, spec) {
   const xr = spec.xrev;
   const X = v => L + (xr ? (x1 - v) : (v - x0)) / (x1 - x0) * (W - L - R);
   const Y = v => H - B - ((spec.logy ? v : v) - y0) / (y1 - y0) * (H - T - B);
-  const acc = css("--accent");
   let s = `<svg viewBox="0 0 ${W} ${H}">`;
   /* convective bands (structure charts) */
   if (spec.bands) for (const b of spec.bands) {
     const a = X(b[0]), c = X(b[1]);
-    s += `<rect x="${Math.min(a,c)}" y="${T}" width="${Math.abs(c-a)}" height="${H-T-B}" fill="var(--accent-2)" opacity="0.13"/>`;
+    s += `<rect x="${Math.min(a,c)}" y="${T}" width="${Math.abs(c-a)}" height="${H-T-B}" fill="var(--band)"/>`;
   }
   /* grid + axes */
   const ytk = spec.logy ? niceTicks(y0, y1, 4).filter(v => true) : niceTicks(y0, y1, 4);
   for (const v of ytk) {
     s += `<line class="gridline" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/>`;
     const lab = spec.logy ? "10^" + fmtNum(v) : fmtNum(v);
-    s += `<text class="tick" x="${L-6}" y="${Y(v)+3.5}" text-anchor="end" font-family="var(--mono)" font-size="10.5" fill="var(--ink-3)">${lab}</text>`;
+    s += `<text class="tick" x="${L-6}" y="${Y(v)+3.5}" text-anchor="end" font-family="var(--serif)" font-size="11" fill="var(--ink-3)">${lab}</text>`;
   }
   for (const v of niceTicks(x0, x1, 5)) {
-    s += `<text x="${X(v)}" y="${H-B+16}" text-anchor="middle" font-family="var(--mono)" font-size="10.5" fill="var(--ink-3)">${fmtNum(v)}</text>`;
+    s += `<text x="${X(v)}" y="${H-B+16}" text-anchor="middle" font-family="var(--serif)" font-size="11" fill="var(--ink-3)">${fmtNum(v)}</text>`;
   }
   s += `<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="var(--rule)"/>`;
-  s += `<text x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle" font-family="var(--mono)" font-size="10.5" fill="var(--ink-3)">${spec.xlab}</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="12" fill="var(--ink-3)">${spec.xlab}</text>`;
   /* series */
   let d = "";
   for (let i = 0; i < pts.length; i++) d += (i ? "L" : "M") + X(xs[i]).toFixed(1) + " " + Y(ys[i]).toFixed(1);
-  s += `<path d="${d}" fill="none" stroke="${acc}" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/>`;
   const li = pts.length - 1;
-  s += `<circle cx="${X(xs[li])}" cy="${Y(ys[li])}" r="3.4" fill="${acc}"/>`;
+  s += `<circle cx="${X(xs[li])}" cy="${Y(ys[li])}" r="3.4" fill="var(--red)"/>`;
   s += `<line id="ch" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink-3)" stroke-width="1" visibility="hidden"/>`;
-  s += `<circle id="hp" r="4" fill="none" stroke="${acc}" stroke-width="2" visibility="hidden"/>`;
+  s += `<circle id="hp" r="4" fill="none" stroke="var(--red)" stroke-width="2" visibility="hidden"/>`;
   s += `</svg>`;
   el.innerHTML = s;
   /* hover: nearest-point crosshair + tooltip */

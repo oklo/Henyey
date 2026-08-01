@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HENYEY — a 1964 stellar evolution code, running now</title>
 <meta name="description" content="The Henyey–Forbes–Gould (1964) stellar evolution method, reconstructed in period FORTRAN IV and running live in your browser at IBM 7094 arithmetic.">
+<link rel="preload" href="fonts/texgyreschola-regular.otf" as="font" type="font/otf" crossorigin>
+<link rel="preload" href="fonts/texgyreschola-bold.otf" as="font" type="font/otf" crossorigin>
 <link rel="stylesheet" href="site.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✳</text></svg>">
 </head>
@@ -14,6 +16,7 @@
   <p class="overline">BERKELEY ASTRONOMICAL DEPARTMENT · METHOD II · RECONSTRUCTED</p>
   <h1>HENYEY</h1>
   <p class="tagline">A 1964 stellar-evolution calculation, running at the speed of now.</p>
+  <p class="volume">Mainly stars, matrices, and heat</p>
   <p class="lede">
     In 1964, Louis Henyey, James Forbes, and Nancy Gould published the numerical
     method that still sits inside nearly every stellar-evolution code on Earth.
@@ -28,7 +31,7 @@
 
 <main>
 <section id="deck" class="section">
-  <h2><span class="secno">01</span> The deck</h2>
+  <h2><span class="secno">1–1</span>The deck</h2>
   <p>The interface to a star was once eighty columns wide. Two cards specify the
      whole calculation: the first carries the star (mass, hydrogen, metals), the
      second the run (mesh, models, time step, convergence, mixing length).
@@ -57,7 +60,7 @@
 </section>
 
 <section class="section">
-  <h2><span class="secno">02</span> The job</h2>
+  <h2><span class="secno">1–2</span>The job</h2>
   <p>Unit 5 is the card reader; unit 6 is the printer. Watch the
      <span class="mono">MAX&nbsp;CORRECT</span> column: that is the Henyey method
      itself — Newton–Raphson corrections collapsing toward zero, model after model.</p>
@@ -65,18 +68,17 @@
 </section>
 
 <section class="section">
-  <h2><span class="secno">03</span> The star</h2>
+  <h2><span class="secno">1–3</span>The star</h2>
   <p>The same numbers, read the modern way. Left: the track in the
      Hertzsprung–Russell diagram. Right: the star's vital signs against age.</p>
   <div class="chartgrid">
-    <div class="chartcard wide" id="hrChart"><h3>Hertzsprung–Russell track</h3><div class="chartbox" id="hrBox"></div></div>
-    <div class="chartcard" id="lumChart"><h3>Luminosity <span class="unit">L/L☉</span></h3><div class="chartbox" id="lumBox"></div></div>
-    <div class="chartcard" id="radChart"><h3>Radius <span class="unit">R/R☉</span></h3><div class="chartbox" id="radBox"></div></div>
-    <div class="chartcard" id="tcChart"><h3>Central temperature <span class="unit">K</span></h3><div class="chartbox" id="tcBox"></div></div>
-    <div class="chartcard" id="xcChart"><h3>Central hydrogen <span class="unit">mass fraction</span></h3><div class="chartbox" id="xcBox"></div></div>
+    <figure class="chartcard wide" id="hrChart"><div class="chartbox" id="hrBox"></div><figcaption class="caption"><b>Fig.&nbsp;1.</b> The evolutionary track in the Hertzsprung–Russell diagram. The red point is the current model.</figcaption></figure>
+    <figure class="chartcard" id="lumChart"><div class="chartbox" id="lumBox"></div><figcaption class="caption"><b>Fig.&nbsp;2.</b> Luminosity, in units of <i>L</i>☉.</figcaption></figure>
+    <figure class="chartcard" id="radChart"><div class="chartbox" id="radBox"></div><figcaption class="caption"><b>Fig.&nbsp;3.</b> Radius, in units of <i>R</i>☉.</figcaption></figure>
+    <figure class="chartcard" id="tcChart"><div class="chartbox" id="tcBox"></div><figcaption class="caption"><b>Fig.&nbsp;4.</b> Central temperature (K).</figcaption></figure>
+    <figure class="chartcard" id="xcChart"><div class="chartbox" id="xcBox"></div><figcaption class="caption"><b>Fig.&nbsp;5.</b> Central hydrogen mass fraction.</figcaption></figure>
   </div>
-  <div class="chartcard wide" id="structCard">
-    <h3>Inside the star <span class="unit">structure at printed models</span></h3>
+  <figure class="chartcard wide" id="structCard">
     <p class="scrub-row"><input type="range" id="structScrub" min="0" max="0" value="0" step="1" disabled>
        <span id="structLabel" class="mono">no structure printed yet</span></p>
     <div class="chartgrid three">
@@ -84,13 +86,15 @@
       <div class="chartbox" id="stRhoBox"></div>
       <div class="chartbox" id="stLBox"></div>
     </div>
-    <p class="fineprint">Shaded bands mark convective regions, located by the Schwarzschild criterion (eq. 27 of the paper).</p>
-  </div>
+    <figcaption class="caption"><b>Fig.&nbsp;6.</b> The interior run of temperature, density, and luminosity
+      against the mass fraction, at the printed models. Shaded bands mark convective regions,
+      located by the Schwarzschild criterion (eq.&nbsp;27 of the paper).</figcaption>
+  </figure>
   <details class="tableview"><summary>View the track as a table</summary><div id="trackTable"></div></details>
 </section>
 
 <section class="section prose">
-  <h2><span class="secno">04</span> The method</h2>
+  <h2><span class="secno">1–4</span>The method</h2>
   <p>The star is divided into concentric mass shells. On each shell live four
      unknowns — radius, luminosity, temperature, density — governed by four
      difference equations: hydrostatic equilibrium, mass continuity, energy
@@ -115,7 +119,7 @@
 </section>
 
 <section class="section prose">
-  <h2><span class="secno">05</span> The lineage</h2>
+  <h2><span class="secno">1–5</span>The lineage</h2>
   <p>The method was born at Berkeley and Livermore in the 1950s, published
      tersely in 1959, and taught to the world largely by a talk Henyey gave at
      the 1961 IAU General Assembly in Berkeley. The 1964 paper — the one this
