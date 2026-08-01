@@ -97,7 +97,19 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    implement the opacity (and degeneracy) treatment of the BFGH65
    appendices in OPAC, merge the branch, and redo the (alpha, X)
    solar fit, for both code lines; then the tau-integration of the
-   case-B boundary.
+   case-B boundary. UPDATE 2 (August 2026): DONE for the '64 line -
+   Appendix A degeneracy (H(G), relativistic K(x)) in STATE and
+   Appendix B Keller-Meyerott opacity with Mestel conduction in
+   OPAC, merged with the saha-envelope branch; the scaled T unit is
+   exactly BFGH's T7, so the constants transcribe verbatim. The two
+   restorations bracket the Sun (BFGH alone R = 1.06, Saha alone
+   0.73) but combine to ~25% compact, nearly alpha-independent.
+   REMAINING for the solar fit: the HVB65 outer radiative layer -
+   the T-tau relation (their eq. 10, less blanketing) and a bounded
+   mid-temperature opacity standing in for Vardya's atmospheric
+   table. The f77 line has not yet received the BFGH physics
+   (Appendix A is superseded there by Phase 3 SCVH, but Appendix B
+   and the T-tau layer apply).
 6. **Validation against the published record** — LBA97 Table 1
    (0.08, 0.15, 0.20 Msun vs. Burrows et al. 1993); the 0.1 Msun
    narrative: ZAMS at Teff = 2228 K, log L = -3.38; 3He peak mass
