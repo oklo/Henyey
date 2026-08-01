@@ -195,41 +195,74 @@ function fmtNum(v) {
   if (a >= 1) return (+v.toFixed(2)).toString();
   return (+v.toFixed(3)).toString();
 }
+function logTicks(a, b) {
+  const t = [], span = b - a;
+  const mant = span <= 1.6 ? [1, 2, 3, 5] : (span <= 3.4 ? [1, 2, 5] : [1]);
+  for (let e = Math.floor(a) - 1; e <= Math.ceil(b) + 1; e++)
+    for (const m of mant) {
+      const v = e + Math.log10(m);
+      if (v >= a - 1e-9 && v <= b + 1e-9) t.push(v);
+    }
+  return t;
+}
+const SUP = { "-": "\u207b", "0": "\u2070", "1": "\u00b9", "2": "\u00b2", "3": "\u00b3",
+  "4": "\u2074", "5": "\u2075", "6": "\u2076", "7": "\u2077", "8": "\u2078", "9": "\u2079" };
+function logLab(v) {
+  const val = Math.pow(10, v);
+  if (val >= 0.001 - 1e-12 && val <= 9999) {
+    if (val >= 1) return String(Math.round(val));
+    return String(+val.toPrecision(1));
+  }
+  const e = Math.round(v);
+  return "10" + String(e).split("").map(c => SUP[c] || c).join("");
+}
 function lineChart(el, spec) {
-  const W = 460, H = 355, L = 58, R = 14, T = 14, B = 40;
-  const pts = spec.pts.filter(p => isFinite(p.x) && isFinite(p.y) && (!spec.logy || p.y > 0));
+  const W = 460, H = 355, L = 64, R = 14, T = 14, B = 40;
+  const lgx = spec.logx, lgy = spec.logy;
+  const pts = spec.pts.filter(p => isFinite(p.x) && isFinite(p.y)
+    && (!lgy || p.y > 0) && (!lgx || p.x > 0));
   el.innerHTML = "";
   if (pts.length < 2) { el.innerHTML = `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="13" fill="var(--ink-3)">awaiting job</text></svg>`; return; }
-  const ys = pts.map(p => spec.logy ? Math.log10(p.y) : p.y);
-  const xs = pts.map(p => p.x);
-  let x0 = Math.min(...xs), x1 = Math.max(...xs);
-  let y0 = Math.min(...ys), y1 = Math.max(...ys);
-  if (x1 - x0 < 1e-12) x1 = x0 + 1;
-  const ypad = (y1 - y0 || Math.abs(y0) || 1) * 0.08; y0 -= ypad; y1 += ypad;
-  const xr = spec.xrev;
-  const X = v => L + (xr ? (x1 - v) : (v - x0)) / (x1 - x0) * (W - L - R);
-  const Y = v => H - B - ((spec.logy ? v : v) - y0) / (y1 - y0) * (H - T - B);
+  const tx = v => lgx ? Math.log10(v) : v;
+  const ty = v => lgy ? Math.log10(v) : v;
+  const xs = pts.map(p => tx(p.x)), ys = pts.map(p => ty(p.y));
+  let x0, x1, y0, y1;
+  if (spec.xrange) { x0 = tx(spec.xrange[0]); x1 = tx(spec.xrange[1]); }
+  else { x0 = Math.min(...xs); x1 = Math.max(...xs); if (x1 - x0 < 1e-12) x1 = x0 + 1; }
+  if (spec.yrange) { y0 = ty(spec.yrange[0]); y1 = ty(spec.yrange[1]); }
+  else {
+    y0 = Math.min(...ys); y1 = Math.max(...ys);
+    const yp = (y1 - y0 || Math.abs(y0) || 1) * 0.08; y0 -= yp; y1 += yp;
+  }
+  const X = v => L + ((spec.xrev ? (x1 - v) : (v - x0)) / (x1 - x0)) * (W - L - R);
+  const Y = v => H - B - (v - y0) / (y1 - y0) * (H - T - B);
   let s = `<svg viewBox="0 0 ${W} ${H}">`;
   /* convective bands (structure charts) */
   if (spec.bands) for (const b of spec.bands) {
-    const a = X(b[0]), c = X(b[1]);
+    const a = X(tx(b[0])), c = X(tx(b[1]));
     s += `<rect x="${Math.min(a,c)}" y="${T}" width="${Math.abs(c-a)}" height="${H-T-B}" fill="var(--band)"/>`;
   }
   /* the full figure box, ticks inward on all four sides, journal style */
-  const ytk = niceTicks(y0, y1, 4), xtk = niceTicks(x0, x1, 5);
+  const ytk = lgy ? logTicks(y0, y1) : niceTicks(y0, y1, 4);
+  const xtk = lgx ? logTicks(x0, x1) : niceTicks(x0, x1, 5);
   for (const v of ytk) {
     s += `<line x1="${L}" x2="${L+5}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" stroke-width="0.9"/>`;
     s += `<line x1="${W-R}" x2="${W-R-5}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" stroke-width="0.9"/>`;
-    const lab = spec.logy ? "10^" + fmtNum(v) : fmtNum(v);
-    s += `<text class="tick" x="${L-5}" y="${Y(v)+3}" text-anchor="end" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${lab}</text>`;
+    const lab = lgy ? logLab(v) : fmtNum(v);
+    s += `<text x="${L-5}" y="${Y(v)+3.5}" text-anchor="end" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${lab}</text>`;
   }
   for (const v of xtk) {
     s += `<line x1="${X(v)}" x2="${X(v)}" y1="${H-B}" y2="${H-B-5}" stroke="var(--ink)" stroke-width="0.9"/>`;
     s += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${T+5}" stroke="var(--ink)" stroke-width="0.9"/>`;
-    s += `<text x="${X(v)}" y="${H-B+15}" text-anchor="middle" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${fmtNum(v)}</text>`;
+    const lab = lgx ? logLab(v) : fmtNum(v);
+    s += `<text x="${X(v)}" y="${H-B+15}" text-anchor="middle" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${lab}</text>`;
   }
   s += `<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="none" stroke="var(--ink)" stroke-width="1.1"/>`;
   s += `<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="12" fill="var(--ink-2)">${spec.xlab}</text>`;
+  if (spec.ylab) {
+    const cy = (T + H - B) / 2;
+    s += `<text transform="rotate(-90 13 ${cy})" x="13" y="${cy+4}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="12" fill="var(--ink-2)">${spec.ylab}</text>`;
+  }
   /* series */
   const lw = spec.lw || 1.6;
   let d = "";
@@ -290,17 +323,20 @@ function renderAll() {
   if (!run || run.track.length < 2) return;
   const tk = run.track;
   lineChart(document.getElementById("hrBox"), {
-    pts: tk.map(p => ({ x: p.Teff, y: p.L, p })), logy: true, xrev: true,
+    pts: tk.map(p => ({ x: p.Teff, y: p.L, p })), logy: true, logx: true, xrev: true,
     dots: true, lw: 0.6, arrows: [0.3, 0.68],
-    xlab: "Teff (K) — hotter to the left",
+    xrange: [2000, 30000], yrange: [1e-4, 1e4],
+    ylab: "L / L☉",
+    xlab: "Teff (K)",
     tip: q => `model ${q.p.model} · ${fmtNum(ageGyr(q.p))} Gyr<br>L = ${fmtNum(q.p.L)} L☉ · Teff = ${Math.round(q.p.Teff)} K<br>R = ${fmtNum(q.p.R)} R☉`,
   });
   const mk = (id, key, logy, lab) => lineChart(document.getElementById(id), {
-    pts: tk.map(p => ({ x: ageGyr(p), y: p[key], p })), logy, xlab: "age (Gyr)",
+    pts: tk.map(p => ({ x: ageGyr(p), y: p[key], p })), logy, logx: true,
+    xlab: "age (Gyr)", ylab: lab,
     tip: q => `model ${q.p.model} · ${fmtNum(q.x)} Gyr<br>${lab} = ${fmtNum(q.y)}`,
   });
-  mk("lumBox", "L", false, "L/L☉");
-  mk("radBox", "R", false, "R/R☉");
+  mk("lumBox", "L", false, "L / L☉");
+  mk("radBox", "R", false, "R / R☉");
   mk("tcBox", "Tc", false, "Tc (K)");
   mk("xcBox", "Xc", false, "Xc");
   renderStructure();
@@ -323,11 +359,12 @@ function renderStructure() {
   if (open !== null) bands.push([open, 1]);
   const mkS = (id, key, logy, lab2, scale = 1) => lineChart(document.getElementById(id), {
     pts: st.pts.map(p => ({ x: p.mm, y: p[key] * scale, p })), logy, bands, arrows: null,
-    xlab: lab2, tip: q => `m/M = ${fmtNum(q.p.mm)} · r = ${fmtNum(q.p.r)} cm<br>${key} = ${fmtNum(q.p[key])}`,
+    xlab: "m / M", ylab: lab2,
+    tip: q => `m/M = ${fmtNum(q.p.mm)} · r = ${fmtNum(q.p.r)} cm<br>${key} = ${fmtNum(q.p[key])}`,
   });
-  mkS("stTBox", "T", true, "T (K) vs m/M");
-  mkS("stRhoBox", "rho", true, "ρ (g/cm³) vs m/M");
-  mkS("stLBox", "l", false, "L (erg/s) vs m/M");
+  mkS("stTBox", "T", true, "T (K)");
+  mkS("stRhoBox", "rho", true, "ρ (g cm⁻³)");
+  mkS("stLBox", "l", false, "L (erg s⁻¹)");
 }
 document.getElementById("structScrub").addEventListener("input", renderStructure);
 
