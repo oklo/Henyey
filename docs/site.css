@@ -63,7 +63,7 @@ h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(26px, 4vw, 40
 .volume { font-style: italic; color: var(--ink-2); margin: 0 0 18px; font-size: 13.5px; }
 .hero::after { content: ""; display: block; height: 2px; background: var(--red); width: 96px; margin-top: 22px; }
 .lede { max-width: var(--measure); text-align: justify; hyphens: auto; }
-.lede-actions { margin-top: 24px; display: flex; gap: 12px; }
+.lede-actions { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
 .btn {
   display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.05em;
   padding: 9px 16px; border: 1px solid var(--red); border-radius: 4px; color: var(--red); cursor: pointer;
@@ -107,7 +107,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
   height: 320px; overflow: hidden; position: relative; margin-top: 14px;
 }
 .printer-scroll {
-  position: absolute; inset: 0; overflow-y: auto; padding: 10px 14px;
+  position: absolute; inset: 0; overflow: auto; padding: 10px 14px;
   font-family: var(--mono); font-size: 11.2px; line-height: 1.5; white-space: pre; color: var(--ink-2);
   background-image: repeating-linear-gradient(to bottom, var(--greenbar) 0 35.4px, transparent 35.4px 70.8px);
 }
@@ -126,6 +126,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 .scrub-row input[type=range] { flex: 1; accent-color: var(--red); }
 .tableview { margin-top: 16px; font-size: 13px; }
 .tableview summary { cursor: pointer; color: var(--red); font-family: var(--mono); font-size: 12px; }
+.tableview > div, #trackTable { overflow-x: auto; }
 .tableview table { border-collapse: collapse; margin-top: 10px; font-family: var(--mono); font-size: 12px; }
 .tableview th, .tableview td { padding: 3px 10px; border-bottom: 1px solid var(--rule); text-align: right; color: var(--ink-2); }
 .tableview th { color: var(--ink-3); font-weight: 600; }
@@ -137,7 +138,13 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 }
 footer { border-top: 1px solid var(--rule); padding: 18px 24px 36px; text-align: center; }
 footer p { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
-@media (max-width: 640px) { .controls input { width: 84px; } .printer { height: 260px; } }
+@media (max-width: 700px) {
+  .controls input { width: 84px; }
+  .printer { height: 260px; }
+  .printer-scroll { font-size: 9.6px; }
+  .flowfig { overflow-x: auto; }
+  .flowfig svg { min-width: 620px; }
+}
 
 /* ---- the program, annotated (source.html) ---- */
 .src-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 26px; align-items: start; }
@@ -161,8 +168,9 @@ footer p { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
 .mnote b { color: var(--ink); }
 .mnote:hover, .mnote.hl { border-left-color: var(--red); }
 .mnote .eq { font-style: italic; }
+.flowcard { max-width: var(--measure); }
 .flowfig { background: none; border: none; padding: 8px 0 2px; }
-.flowfig svg { display: block; width: 100%; height: auto; max-width: 900px; margin: 0 auto; }
+.flowfig svg { display: block; width: 100%; height: auto; }
 .flowfig text { font-family: var(--mono); font-size: 10.5px; fill: var(--ink); }
 .flowfig .box { fill: none; stroke: var(--ink); stroke-width: 1.4; }
 .flowfig .dec { fill: none; stroke: var(--ink); stroke-width: 1.4; }
