@@ -196,7 +196,7 @@ function fmtNum(v) {
   return (+v.toFixed(3)).toString();
 }
 function lineChart(el, spec) {
-  const W = 460, H = 240, L = 56, R = 12, T = 12, B = 34;
+  const W = 460, H = 355, L = 58, R = 14, T = 14, B = 40;
   const pts = spec.pts.filter(p => isFinite(p.x) && isFinite(p.y) && (!spec.logy || p.y > 0));
   el.innerHTML = "";
   if (pts.length < 2) { el.innerHTML = `<svg viewBox="0 0 ${W} ${H}"><text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="13" fill="var(--ink-3)">awaiting job</text></svg>`; return; }
@@ -221,15 +221,15 @@ function lineChart(el, spec) {
     s += `<line x1="${L}" x2="${L+5}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" stroke-width="0.9"/>`;
     s += `<line x1="${W-R}" x2="${W-R-5}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" stroke-width="0.9"/>`;
     const lab = spec.logy ? "10^" + fmtNum(v) : fmtNum(v);
-    s += `<text class="tick" x="${L-5}" y="${Y(v)+3}" text-anchor="end" font-family="var(--serif)" font-size="9.5" fill="var(--ink-2)">${lab}</text>`;
+    s += `<text class="tick" x="${L-5}" y="${Y(v)+3}" text-anchor="end" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${lab}</text>`;
   }
   for (const v of xtk) {
     s += `<line x1="${X(v)}" x2="${X(v)}" y1="${H-B}" y2="${H-B-5}" stroke="var(--ink)" stroke-width="0.9"/>`;
     s += `<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${T+5}" stroke="var(--ink)" stroke-width="0.9"/>`;
-    s += `<text x="${X(v)}" y="${H-B+13}" text-anchor="middle" font-family="var(--serif)" font-size="9.5" fill="var(--ink-2)">${fmtNum(v)}</text>`;
+    s += `<text x="${X(v)}" y="${H-B+15}" text-anchor="middle" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${fmtNum(v)}</text>`;
   }
   s += `<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="none" stroke="var(--ink)" stroke-width="1.1"/>`;
-  s += `<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="10.5" fill="var(--ink-2)">${spec.xlab}</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="12" fill="var(--ink-2)">${spec.xlab}</text>`;
   /* series */
   const lw = spec.lw || 1.6;
   let d = "";
@@ -237,6 +237,23 @@ function lineChart(el, spec) {
   s += `<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="${lw}" stroke-linejoin="round"/>`;
   if (spec.dots) for (let i = 0; i < pts.length; i++)
     s += `<circle cx="${X(xs[i]).toFixed(1)}" cy="${Y(ys[i]).toFixed(1)}" r="1.9" fill="var(--ink)"/>`;
+  /* unobtrusive arrows marking the direction of evolution */
+  if (spec.arrows !== null) {
+    const fr = spec.arrows || [0.62];
+    const seg = [0];
+    for (let i = 1; i < pts.length; i++)
+      seg.push(seg[i-1] + Math.hypot(X(xs[i])-X(xs[i-1]), Y(ys[i])-Y(ys[i-1])));
+    const total = seg[seg.length-1];
+    for (const f of fr) {
+      const target = f * total;
+      let i = 1; while (i < pts.length-1 && seg[i] < target) i++;
+      const dx = X(xs[i]) - X(xs[i-1]), dy = Y(ys[i]) - Y(ys[i-1]);
+      if (dx === 0 && dy === 0) continue;
+      const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      const mx = (X(xs[i]) + X(xs[i-1])) / 2, my = (Y(ys[i]) + Y(ys[i-1])) / 2;
+      s += `<path d="M6 0 L-4 4 L-4 -4 z" transform="translate(${mx.toFixed(1)} ${my.toFixed(1)}) rotate(${ang.toFixed(1)})" fill="var(--ink)" opacity="0.32"/>`;
+    }
+  }
   const li = pts.length - 1;
   s += `<circle cx="${X(xs[li])}" cy="${Y(ys[li])}" r="3.4" fill="var(--red)"/>`;
   s += `<line id="ch" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink-3)" stroke-width="1" visibility="hidden"/>`;
@@ -274,7 +291,7 @@ function renderAll() {
   const tk = run.track;
   lineChart(document.getElementById("hrBox"), {
     pts: tk.map(p => ({ x: p.Teff, y: p.L, p })), logy: true, xrev: true,
-    dots: true, lw: 0.6,
+    dots: true, lw: 0.6, arrows: [0.3, 0.68],
     xlab: "Teff (K) — hotter to the left",
     tip: q => `model ${q.p.model} · ${fmtNum(ageGyr(q.p))} Gyr<br>L = ${fmtNum(q.p.L)} L☉ · Teff = ${Math.round(q.p.Teff)} K<br>R = ${fmtNum(q.p.R)} R☉`,
   });
@@ -305,7 +322,7 @@ function renderStructure() {
   }
   if (open !== null) bands.push([open, 1]);
   const mkS = (id, key, logy, lab2, scale = 1) => lineChart(document.getElementById(id), {
-    pts: st.pts.map(p => ({ x: p.mm, y: p[key] * scale, p })), logy, bands,
+    pts: st.pts.map(p => ({ x: p.mm, y: p[key] * scale, p })), logy, bands, arrows: null,
     xlab: lab2, tip: q => `m/M = ${fmtNum(q.p.mm)} · r = ${fmtNum(q.p.r)} cm<br>${key} = ${fmtNum(q.p[key])}`,
   });
   mkS("stTBox", "T", true, "T (K) vs m/M");
