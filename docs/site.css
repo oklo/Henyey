@@ -20,6 +20,7 @@
   --red: #a8332e;           /* the red of the covers, used sparingly */
   --band: rgba(160, 140, 96, 0.16);   /* convective shading */
   --greenbar: rgba(70, 110, 90, 0.05);
+  --measure: 720px;          /* shared right edge: paragraphs, controls, printer */
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --serif: "Schola", Georgia, "Times New Roman", serif;
 }
@@ -61,7 +62,7 @@ h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(26px, 4vw, 40
 .tagline { font-size: clamp(14.5px, 1.9vw, 16px); color: var(--ink-2); margin: 12px 0 2px; }
 .volume { font-style: italic; color: var(--ink-2); margin: 0 0 18px; font-size: 13.5px; }
 .hero::after { content: ""; display: block; height: 2px; background: var(--red); width: 96px; margin-top: 22px; }
-.lede { max-width: 60ch; text-align: justify; hyphens: auto; }
+.lede { max-width: var(--measure); text-align: justify; hyphens: auto; }
 .lede-actions { margin-top: 24px; display: flex; gap: 12px; }
 .btn {
   display: inline-block; font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.05em;
@@ -77,14 +78,14 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 .section { margin: 50px 0; }
 .section h2 { font-size: 16.5px; margin-bottom: 9px; font-weight: 700; }
 .secno { color: var(--ink); margin-right: 14px; }
-.section > p, .prose p { max-width: 66ch; text-align: justify; hyphens: auto; margin: 0 0 0.2em; }
+.section > p, .prose p { max-width: var(--measure); text-align: justify; hyphens: auto; margin: 0 0 0.2em; }
 .prose p + p { text-indent: 1.6em; margin-top: 0.2em; }
 .section > p { color: var(--ink-2); }
 .prose p { color: var(--ink); }
 .fineprint { font-size: 11.9px; color: var(--ink-3); text-align: left !important; text-indent: 0 !important; margin-top: 0.9em !important; }
 
 /* ---- deck ---- */
-.controls { display: flex; flex-wrap: nowrap; gap: 10px 12px; margin: 16px 0 12px; align-items: end; overflow-x: auto; padding-bottom: 4px; }
+.controls { display: flex; flex-wrap: nowrap; gap: 10px 12px; margin: 16px 0 12px; align-items: end; overflow-x: auto; padding-bottom: 4px; max-width: var(--measure); justify-content: space-between; }
 .controls label { display: flex; flex-direction: column; font-size: 10.5px; color: var(--ink-3); gap: 3px; font-family: var(--mono); white-space: nowrap; flex: none; }
 .controls input, .controls select {
   font-family: var(--mono); font-size: 12.5px; padding: 6px 8px; width: 92px;
@@ -103,6 +104,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 /* ---- printer ---- */
 .printer {
   background: var(--surface); border: 1px solid var(--rule); border-radius: 4px;
+  max-width: var(--measure);
   height: 320px; overflow: hidden; position: relative; margin-top: 14px;
 }
 .printer-scroll {
