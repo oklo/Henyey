@@ -43,7 +43,7 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--paper); color: var(--ink);
-  font-family: var(--serif); line-height: 1.52; font-size: 16.5px;
+  font-family: var(--serif); line-height: 1.52; font-size: 15.5px;
 }
 a { color: var(--red); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -56,10 +56,10 @@ a:hover { text-decoration: underline; }
   color: var(--ink-2); border-radius: 50%; width: 36px; height: 36px; font-size: 17px; cursor: pointer;
 }
 .overline { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; color: var(--ink-3); margin: 0 0 10px; }
-h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(38px, 6.2vw, 64px);
+h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px, 4.8vw, 48px);
      letter-spacing: 0.04em; margin: 0; line-height: 1; }
-.tagline { font-size: clamp(15.5px, 2.1vw, 18px); color: var(--ink-2); margin: 12px 0 2px; }
-.volume { font-style: italic; color: var(--ink-2); margin: 0 0 20px; font-size: 14.5px; }
+.tagline { font-size: clamp(14.5px, 1.9vw, 16px); color: var(--ink-2); margin: 12px 0 2px; }
+.volume { font-style: italic; color: var(--ink-2); margin: 0 0 18px; font-size: 13.5px; }
 .hero::after { content: ""; display: block; height: 2px; background: var(--red); width: 96px; margin-top: 22px; }
 .lede { max-width: 60ch; text-align: justify; hyphens: auto; }
 .lede-actions { margin-top: 24px; display: flex; gap: 12px; }
@@ -75,19 +75,19 @@ h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(38px, 6.2vw, 
 /* ---- chapters ---- */
 main { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
 .section { margin: 60px 0; }
-.section h2 { font-size: 19.5px; margin-bottom: 9px; font-weight: 700; }
+.section h2 { font-size: 17.5px; margin-bottom: 9px; font-weight: 700; }
 .secno { color: var(--ink); margin-right: 14px; }
 .section > p, .prose p { max-width: 66ch; text-align: justify; hyphens: auto; margin: 0 0 0.2em; }
 .prose p + p { text-indent: 1.6em; margin-top: 0.2em; }
 .section > p { color: var(--ink-2); }
 .prose p { color: var(--ink); }
-.fineprint { font-size: 12.8px; color: var(--ink-3); text-align: left !important; text-indent: 0 !important; margin-top: 0.9em !important; }
+.fineprint { font-size: 12.2px; color: var(--ink-3); text-align: left !important; text-indent: 0 !important; margin-top: 0.9em !important; }
 
 /* ---- deck ---- */
-.controls { display: flex; flex-wrap: wrap; gap: 14px 20px; margin: 18px 0 14px; align-items: end; }
-.controls label { display: flex; flex-direction: column; font-size: 11.5px; color: var(--ink-3); gap: 4px; font-family: var(--mono); }
+.controls { display: flex; flex-wrap: nowrap; gap: 10px 12px; margin: 16px 0 12px; align-items: end; overflow-x: auto; padding-bottom: 4px; }
+.controls label { display: flex; flex-direction: column; font-size: 10.5px; color: var(--ink-3); gap: 3px; font-family: var(--mono); white-space: nowrap; flex: none; }
 .controls input, .controls select {
-  font-family: var(--mono); font-size: 13px; padding: 7px 9px; width: 128px;
+  font-family: var(--mono); font-size: 12.5px; padding: 6px 8px; width: 92px;
   border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); color: var(--ink);
 }
 #cards { display: grid; gap: 16px; margin: 14px 0; }
@@ -116,7 +116,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
 .chartgrid.three { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .chartcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px 10px; margin: 0; }
 .chartcard.wide { grid-column: 1 / -1; margin-top: 18px; }
-.caption { font-size: 12.8px; color: var(--ink-2); margin: 6px 2px 2px; text-align: left; }
+.caption { font-size: 12.2px; color: var(--ink-2); margin: 6px 2px 2px; text-align: left; }
 .caption b { font-weight: 700; }
 .chartbox { width: 100%; }
 .chartbox svg { display: block; width: 100%; height: auto; }
@@ -135,4 +135,44 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 80px; }
 }
 footer { border-top: 1px solid var(--rule); padding: 20px 24px 40px; text-align: center; }
 footer p { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
-@media (max-width: 640px) { .controls input { width: 104px; } .printer { height: 260px; } }
+@media (max-width: 640px) { .controls input { width: 84px; } .printer { height: 260px; } }
+
+/* ---- the program, annotated (source.html) ---- */
+.src-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 26px; align-items: start; }
+.codepane {
+  font-family: var(--mono); font-size: 11.3px; line-height: 1.62;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 4px;
+  padding: 8px 0 14px; overflow-x: auto; position: relative;
+}
+.codeline { display: flex; white-space: pre; scroll-margin-top: 80px; }
+.codeline .ln { width: 50px; text-align: right; padding-right: 12px; color: var(--ink-3);
+  user-select: none; flex: none; font-size: 9.5px; line-height: inherit; padding-top: 1px; }
+.codeline .txt { flex: 1; min-width: 0; }
+.codeline.cmt .txt { color: var(--ink-3); }
+.codeline .lblf { color: var(--red); }
+.codeline .kw { font-weight: 700; }
+.codeline.noted .ln { color: var(--red); }
+.codeline.hl { background: rgba(168, 51, 46, 0.10); }
+.notespane { position: relative; font-family: var(--serif); }
+.mnote { position: absolute; width: 100%; font-size: 12.2px; line-height: 1.42; color: var(--ink-2);
+  padding-left: 12px; border-left: 2px solid var(--rule); cursor: pointer; }
+.mnote b { color: var(--ink); }
+.mnote:hover, .mnote.hl { border-left-color: var(--red); }
+.mnote .eq { font-style: italic; }
+.flowfig { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 16px 10px 6px; }
+.flowfig svg { display: block; width: 100%; height: auto; max-width: 900px; margin: 0 auto; }
+.flowfig text { font-family: var(--mono); font-size: 10.5px; fill: var(--ink); }
+.flowfig .box { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.flowfig .dec { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.flowfig .arr { stroke: var(--ink); stroke-width: 1.2; fill: none; marker-end: url(#ah); }
+.flowfig .yn { font-size: 9.5px; fill: var(--ink-2); }
+.flowfig a .box:hover, .flowfig a .dec:hover { stroke: var(--red); stroke-width: 2; }
+.flowfig a { cursor: pointer; }
+.pagenav { font-family: var(--mono); font-size: 11.5px; margin-top: 8px; }
+.pagenav a { margin-right: 14px; }
+@media (max-width: 960px) {
+  .src-layout { grid-template-columns: 1fr; }
+  .notespane { display: none; }
+  .mnote.inline { position: static; display: block; margin: 6px 8px 6px 50px;
+    font-family: var(--serif); white-space: normal; }
+}

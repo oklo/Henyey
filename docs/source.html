@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HENYEY — the program, annotated</title>
+<meta name="description" content="The reconstructed 1964 FORTRAN IV stellar-evolution program, printed in full with an annotated guide in the margin.">
+<link rel="preload" href="fonts/texgyreschola-regular.otf" as="font" type="font/otf" crossorigin>
+<link rel="preload" href="fonts/texgyreschola-bold.otf" as="font" type="font/otf" crossorigin>
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✳</text></svg>">
+</head>
+<body>
+<header class="hero">
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle color scheme">◐</button>
+  <p class="overline">BERKELEY ASTRONOMICAL DEPARTMENT · METHOD II · RECONSTRUCTED</p>
+  <h1>The program</h1>
+  <p class="tagline">The complete FORTRAN IV deck, with an annotated guide in the margin.</p>
+  <p class="volume">Being chapter 2 of <a href="index.html">HENYEY</a></p>
+  <p class="lede">
+    What follows is the entire program — about a thousand lines of fixed-form
+    FORTRAN&nbsp;IV, the same deck that runs when you press SUBMIT on the
+    <a href="index.html#deck">front page</a>. It is printed the way it would
+    come off the printer, columns and all; the notes in the margin say what
+    each part is doing and where it comes from in the 1964 paper. Begin with
+    the flow of the calculation, then read the listing itself. The boxes of
+    the flow chart are links into the code.
+  </p>
+</header>
+
+<main>
+<section class="section">
+  <h2><span class="secno">2–1</span>The flow of the calculation</h2>
+  <figure class="chartcard wide" style="margin-top:14px">
+    <div class="flowfig" id="flowfig"></div>
+    <figcaption class="caption"><b>Fig.&nbsp;7.</b> The logical pattern of the calculation,
+      after Fig.&nbsp;2 of Henyey, Forbes &amp; Gould (1964). The left column is one
+      Newton–Raphson iteration; the right column advances the evolutionary sequence.
+      Every box is a link into the listing below.</figcaption>
+  </figure>
+</section>
+
+<section class="section">
+  <h2><span class="secno">2–2</span>The listing</h2>
+  <p>Fixed form: columns 1–5 hold statement labels (printed red), column 6
+     marks a continuation, columns 7–72 carry the statement. Lines whose
+     number is red carry a note in the margin; on a narrow screen the notes
+     move inline. The deck compiles unchanged with the repository's
+     7094-dialect compiler and with any modern Fortran compiler in legacy mode.</p>
+  <div class="src-layout" style="margin-top:16px">
+    <div class="codepane" id="codepane"><div style="padding:20px 16px;color:var(--ink-3);font-family:var(--serif);font-style:italic">fetching the deck…</div></div>
+    <div class="notespane" id="notespane"></div>
+  </div>
+  <p class="pagenav" style="margin-top:14px">
+    <a href="index.html">← back to the machine</a>
+    <a href="https://github.com/oklo/Henyey">the repository</a>
+    <a href="https://articles.adsabs.harvard.edu/pdf/1964ApJ...139..306H">the 1964 paper</a>
+  </p>
+</section>
+</main>
+
+<footer>
+  <p class="mono">HENYEY · oklo/Henyey · period source, modern speed · no data leaves your browser</p>
+</footer>
+
+<script src="source.js"></script>
+</body>
+</html>
