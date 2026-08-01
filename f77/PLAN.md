@@ -83,8 +83,20 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    installed in ENVEL of both code lines; the solar-radius experiment
    shows the full alpha range spans only R = 0.914-0.927 Rsun with the
    ideal-gas envelope, isolating Saha ionization thermodynamics (the
-   Vardya physics) as the binding constraint — that is the remaining
-   work of this phase, together with the tau-integration of the
+   Vardya physics) as the binding constraint. UPDATE (August 2026):
+   the Saha envelope (H, He I/II, representative metal; HVB65 Sec. II
+   without turbulent pressure) is implemented on the `saha-envelope`
+   branch for the FORTRAN IV line. The thermodynamics behaves
+   correctly (grad-ad dips to ~0.15 through the ionization zones)
+   but exposes the low-temperature opacity: the H-minus formula
+   beyond its 3000-6000 K validity plus the interior-calibrated
+   Kramers law give kappa ~ 1e3 cm2/g at 1-3e4 K where reality is
+   tens, and the solar radius regresses to 0.73 Rsun — the failure
+   mode the HVB65 abstract itself names ("inadequate knowledge
+   concerning opacities at low temperatures"). CRITICAL PATH:
+   implement the opacity (and degeneracy) treatment of the BFGH65
+   appendices in OPAC, merge the branch, and redo the (alpha, X)
+   solar fit, for both code lines; then the tau-integration of the
    case-B boundary.
 6. **Validation against the published record** — LBA97 Table 1
    (0.08, 0.15, 0.20 Msun vs. Burrows et al. 1993); the 0.1 Msun
