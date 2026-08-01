@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HENYEY — a 1964 stellar evolution code, running now</title>
+<meta name="description" content="The Henyey–Forbes–Gould (1964) stellar evolution method, reconstructed in period FORTRAN IV and running live in your browser at IBM 7094 arithmetic.">
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✳</text></svg>">
+</head>
+<body>
+<header class="hero">
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle color scheme">◐</button>
+  <p class="overline">BERKELEY ASTRONOMICAL DEPARTMENT · METHOD II · RECONSTRUCTED</p>
+  <h1>HENYEY</h1>
+  <p class="tagline">A 1964 stellar-evolution calculation, running at the speed of now.</p>
+  <p class="lede">
+    In 1964, Louis Henyey, James Forbes, and Nancy Gould published the numerical
+    method that still sits inside nearly every stellar-evolution code on Earth.
+    Their program ran overnight on an IBM&nbsp;7094. This page carries a faithful
+    reconstruction — period FORTRAN&nbsp;IV, punched-card input, line-printer
+    output, 27-bit arithmetic — compiled to WebAssembly. Your browser is the
+    mainframe now. The overnight job takes about half a second.
+  </p>
+  <p class="lede-actions"><a class="btn" href="#deck">Punch a deck ↓</a>
+     <a class="btn ghost" href="https://github.com/oklo/Henyey">Read the source</a></p>
+</header>
+
+<main>
+<section id="deck" class="section">
+  <h2><span class="secno">01</span> The deck</h2>
+  <p>The interface to a star was once eighty columns wide. Two cards specify the
+     whole calculation: the first carries the star (mass, hydrogen, metals), the
+     second the run (mesh, models, time step, convergence, mixing length).
+     Edit the fields — the keypunch follows.</p>
+  <div class="controls">
+    <label>Preset
+      <select id="preset">
+        <option value="sun">The Sun, calibrated</option>
+        <option value="half">A 0.5 M☉ dwarf</option>
+        <option value="reddwarf">A 0.3 M☉ red dwarf</option>
+      </select>
+    </label>
+    <label>Mass (M☉) <input id="f_mass" type="number" step="0.05" min="0.2" max="2.5" value="1.00"></label>
+    <label>X (hydrogen) <input id="f_x" type="number" step="0.001" min="0.4" max="0.85" value="0.709"></label>
+    <label>Z (metals) <input id="f_z" type="number" step="0.005" min="0.001" max="0.06" value="0.020"></label>
+    <label>Models <input id="f_models" type="number" step="10" min="1" max="400" value="80"></label>
+    <label>Δt₀ (yr) <input id="f_dtyr" type="number" step="1e6" min="1e4" max="1e9" value="1e7"></label>
+    <label>α (mixing length) <input id="f_alfa" type="number" step="0.1" min="0.1" max="3" value="1.5"></label>
+  </div>
+  <div id="cards"></div>
+  <pre id="deckListing" class="deck-listing" aria-label="Card images as text"></pre>
+  <p class="run-row">
+    <button id="submitJob" class="btn primary">SUBMIT JOB</button>
+    <span id="jobStatus" class="job-status">machine idle</span>
+  </p>
+</section>
+
+<section class="section">
+  <h2><span class="secno">02</span> The job</h2>
+  <p>Unit 5 is the card reader; unit 6 is the printer. Watch the
+     <span class="mono">MAX&nbsp;CORRECT</span> column: that is the Henyey method
+     itself — Newton–Raphson corrections collapsing toward zero, model after model.</p>
+  <div id="printer" class="printer" aria-live="polite"><div class="printer-scroll" id="printerScroll"></div></div>
+</section>
+
+<section class="section">
+  <h2><span class="secno">03</span> The star</h2>
+  <p>The same numbers, read the modern way. Left: the track in the
+     Hertzsprung–Russell diagram. Right: the star's vital signs against age.</p>
+  <div class="chartgrid">
+    <div class="chartcard wide" id="hrChart"><h3>Hertzsprung–Russell track</h3><div class="chartbox" id="hrBox"></div></div>
+    <div class="chartcard" id="lumChart"><h3>Luminosity <span class="unit">L/L☉</span></h3><div class="chartbox" id="lumBox"></div></div>
+    <div class="chartcard" id="radChart"><h3>Radius <span class="unit">R/R☉</span></h3><div class="chartbox" id="radBox"></div></div>
+    <div class="chartcard" id="tcChart"><h3>Central temperature <span class="unit">K</span></h3><div class="chartbox" id="tcBox"></div></div>
+    <div class="chartcard" id="xcChart"><h3>Central hydrogen <span class="unit">mass fraction</span></h3><div class="chartbox" id="xcBox"></div></div>
+  </div>
+  <div class="chartcard wide" id="structCard">
+    <h3>Inside the star <span class="unit">structure at printed models</span></h3>
+    <p class="scrub-row"><input type="range" id="structScrub" min="0" max="0" value="0" step="1" disabled>
+       <span id="structLabel" class="mono">no structure printed yet</span></p>
+    <div class="chartgrid three">
+      <div class="chartbox" id="stTBox"></div>
+      <div class="chartbox" id="stRhoBox"></div>
+      <div class="chartbox" id="stLBox"></div>
+    </div>
+    <p class="fineprint">Shaded bands mark convective regions, located by the Schwarzschild criterion (eq. 27 of the paper).</p>
+  </div>
+  <details class="tableview"><summary>View the track as a table</summary><div id="trackTable"></div></details>
+</section>
+
+<section class="section prose">
+  <h2><span class="secno">04</span> The method</h2>
+  <p>The star is divided into concentric mass shells. On each shell live four
+     unknowns — radius, luminosity, temperature, density — governed by four
+     difference equations: hydrostatic equilibrium, mass continuity, energy
+     balance, and energy transport (equations 22–26 of the paper). The trick that
+     changed the field: solve <em>all</em> of them, at <em>all</em> shells,
+     <em>simultaneously</em>, by Newton–Raphson iteration — linearize, sweep a
+     block elimination from center to surface, back-substitute, correct, repeat.
+     Each iteration the corrections shrink quadratically; four or five iterations
+     build a star.</p>
+  <p>The reconstruction keeps the paper's own devices: the “artificial variables”
+     p&nbsp;=&nbsp;P<sup>1/4</sup>, q&nbsp;=&nbsp;ρ<sup>1/3</sup>, the pseudoflux
+     l&nbsp;=&nbsp;ξ²F, chosen in 1964 to tame a matrix that is otherwise
+     ill-conditioned — a courtesy to a machine that carried only eight
+     significant digits. It works in the original group's scaled units
+     (mass in 10³⁰&nbsp;g, length in 10¹⁰&nbsp;cm), and it runs here under the
+     same 27-bit single-precision arithmetic as the 7094, faithfully emulated.
+     The physics is deliberately of the period: Kramers and H⁻ opacities, the
+     proton–proton chain and CNO cycle, Böhm-Vitense mixing-length convection.</p>
+  <p><a href="https://articles.adsabs.harvard.edu/pdf/1964ApJ...139..306H">Henyey, Forbes &amp; Gould 1964, ApJ 139, 306</a> ·
+     <a href="https://github.com/oklo/Henyey/blob/main/henyey.f">the FORTRAN IV source</a> ·
+     <a href="https://github.com/oklo/Henyey/blob/main/docs/DIALECT.md">the compiler's dialect contract</a></p>
+</section>
+
+<section class="section prose">
+  <h2><span class="secno">05</span> The lineage</h2>
+  <p>The method was born at Berkeley and Livermore in the 1950s, published
+     tersely in 1959, and taught to the world largely by a talk Henyey gave at
+     the 1961 IAU General Assembly in Berkeley. The 1964 paper — the one this
+     reconstruction implements — gave the mature form: Method II. The production
+     code's physics filled the 1965 “Studies in Stellar Evolution” papers.
+     From Berkeley the code traveled: card decks carried to Santa Cruz in 1968
+     seeded a line of descendants that has run continuously ever since, on
+     problems from the faintest red dwarfs to the formation of Jupiter. Nearly
+     every modern stellar-evolution program — whatever its language — still has
+     a Henyey solver at its heart.</p>
+  <p class="fineprint">This site runs a clean-room reconstruction: a new
+     implementation of the published method in period FORTRAN IV, compiled by a
+     new 7094-dialect compiler, not recovered original source. The full family
+     tree, including a FORTRAN 77 line under active development, lives in
+     <a href="https://github.com/oklo/Henyey">the repository</a>.</p>
+</section>
+</main>
+
+<footer>
+  <p class="mono">HENYEY · oklo/Henyey · period source, modern speed · no data leaves your browser</p>
+</footer>
+
+<div id="tooltip" class="tooltip" hidden></div>
+<script src="site.js"></script>
+</body>
+</html>
