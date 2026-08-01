@@ -116,7 +116,7 @@ main { max-width: 1020px; margin: 0 auto; padding: 0 24px 72px; }
 /* ---- figures ---- */
 .chartgrid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 18px; }
 .chartgrid.three { grid-template-columns: 1fr; gap: 4px; }
-.chartcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px 10px; margin: 0; max-width: 560px; }
+.chartcard { background: none; border: none; padding: 0 0 4px; margin: 0; max-width: 560px; }
 .chartcard.wide { margin-top: 18px; }
 .caption { font-size: 11.9px; color: var(--ink-2); margin: 6px 2px 2px; text-align: left; }
 .caption b { font-weight: 700; }
@@ -161,7 +161,7 @@ footer p { color: var(--ink-3); font-size: 11.5px; font-family: var(--mono); }
 .mnote b { color: var(--ink); }
 .mnote:hover, .mnote.hl { border-left-color: var(--red); }
 .mnote .eq { font-style: italic; }
-.flowfig { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 16px 10px 6px; }
+.flowfig { background: none; border: none; padding: 8px 0 2px; }
 .flowfig svg { display: block; width: 100%; height: auto; max-width: 900px; margin: 0 auto; }
 .flowfig text { font-family: var(--mono); font-size: 10.5px; fill: var(--ink); }
 .flowfig .box { fill: none; stroke: var(--ink); stroke-width: 1.4; }

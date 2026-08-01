@@ -159,13 +159,13 @@ function submitJob() {
         frag.appendChild(div);
       }
       printerScroll.appendChild(frag);
-      printerScroll.scrollTop = printerScroll.scrollHeight;
       jobStatus.textContent = `JOB RUNNING — model ${run.lastModel} · ${Math.round(performance.now() - t0)} ms`;
       if (!renderTimer) renderTimer = setTimeout(() => { renderTimer = null; renderAll(); }, 160);
     } else if (ev.data.type === "done") {
       run.done = true;
       jobStatus.textContent =
         `JOB COMPLETE — ${run.track.length} models · ${ev.data.ms} ms of 7094 time · in 1964: one night`;
+      printerScroll.scrollTop = 0;
       renderAll(); renderTable();
     } else if (ev.data.type === "error") {
       jobStatus.textContent = "MACHINE CHECK — " + ev.data.message;
