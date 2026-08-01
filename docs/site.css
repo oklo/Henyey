@@ -51,7 +51,7 @@ a:hover { text-decoration: underline; }
 .mono { font-family: var(--mono); font-size: 0.88em; }
 
 /* ---- title page ---- */
-.hero { max-width: 840px; margin: 0 auto; padding: 64px 24px 18px; position: relative; }
+.hero { max-width: 1020px; margin: 0 auto; padding: 64px 24px 18px; position: relative; }
 .theme-toggle {
   position: absolute; top: 20px; right: 24px; background: none; border: 1px solid var(--rule);
   color: var(--ink-2); border-radius: 50%; width: 36px; height: 36px; font-size: 17px; cursor: pointer;
