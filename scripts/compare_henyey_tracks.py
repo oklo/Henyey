@@ -89,15 +89,16 @@ def main() -> int:
     for diagnostic in BAD_DIAGNOSTICS:
         if diagnostic in candidate_text:
             fail(f"candidate contains {diagnostic!r}")
-    if len(reference) != 60 or len(candidate) != 60:
+    expected = len(reference)
+    if expected == 0 or len(candidate) != expected:
         fail(
-            f"expected 60 models, found {len(reference)} reference and "
-            f"{len(candidate)} candidate"
+            f"expected {expected or 'some'} models, found {len(reference)} "
+            f"reference and {len(candidate)} candidate"
         )
-    if [model.number for model in reference] != list(range(1, 61)):
-        fail("reference model numbering is not 1 through 60")
-    if [model.number for model in candidate] != list(range(1, 61)):
-        fail("candidate model numbering is not 1 through 60")
+    if [model.number for model in reference] != list(range(1, expected + 1)):
+        fail(f"reference model numbering is not 1 through {expected}")
+    if [model.number for model in candidate] != list(range(1, expected + 1)):
+        fail(f"candidate model numbering is not 1 through {expected}")
 
     iteration_differences = [
         (left.number, left.iterations, right.iterations)

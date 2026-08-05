@@ -12,10 +12,10 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 
 /* ---------- deck state ---------- */
 const F = id => document.getElementById(id);
-const state = { mass: 1.0, x: 0.709, z: 0.020, models: 80, dtyr: 1e7, alfa: 1.5,
+const state = { mass: 1.0, x: 0.700, z: 0.020, models: 50, dtyr: 1e7, alfa: 1.65,
                 mesh: 151, clim: 0.2, eps: 5e-4, nprin: 10 };
 const presets = {
-  sun:      { mass: 1.0, x: 0.709, z: 0.020, models: 80,  dtyr: 1e7, alfa: 1.5, nprin: 10 },
+  sun:      { mass: 1.0, x: 0.700, z: 0.020, models: 50,  dtyr: 1e7, alfa: 1.65, nprin: 10 },
   half:     { mass: 0.5, x: 0.708, z: 0.020, models: 60,  dtyr: 1e8, alfa: 1.5, nprin: 10 },
   reddwarf: { mass: 0.3, x: 0.708, z: 0.020, models: 120, dtyr: 1e8, alfa: 1.5, nprin: 20 },
 };

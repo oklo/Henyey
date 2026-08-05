@@ -27,8 +27,10 @@ first look is available through these three links:
 1. [Read the FORTRAN IV source deck](henyey.f). It is about 1,000 lines,
    extensively commented, and is kept in the old fixed-column form.
 2. [See the two input cards](henyey.in). They specify a one-solar-mass star,
-   initial hydrogen abundance `X = 0.708`, `Z = 0.020`, 151 mesh points, and
-   60 models.
+   initial hydrogen abundance `X = 0.700`, `Z = 0.020`, mixing-length
+   parameter `alpha = 1.65`, 151 mesh points, and 50 models. These are the
+   calibrated values: the sequence passes through the actual Sun at the
+   solar age.
 3. [See the complete line-printer-style output](henyey.out). The first
    model, intermediate structures, iteration history, and final model are
    all present.
@@ -71,6 +73,15 @@ cases. Here the envelope is reintegrated to obtain the boundary
 derivatives numerically. That is one deliberate difference between this
 reconstruction and the production program described in 1964.
 
+The envelope integration itself proceeds in two stages, following the
+atmosphere paper of Henyey, Vardya & Bodenheimer (1965, ApJ 142, 841).
+The outermost layers are radiative and follow that paper's blanketed
+T-tau relation (their eq. 10, with the line-blanketing coefficients of
+eqs. 11-12), integrated in optical depth from tau = 0.01 to the onset
+of convective instability. From there the march continues on a
+logarithmic column-mass scale, resolving the superadiabatic layer,
+with the smaller of the radiative and mixing-length gradients.
+
 The sequence follows the flow of Figure 2: hydrogen depletion and
 convective mixing, evaluation of the material functions and their
 derivatives, Henyey iterations, and time-step control. A failed step is
@@ -103,6 +114,7 @@ order in which one would naturally inspect the calculation:
 | `CONVCK` | Locates convective zones using the Schwarzschild criterion |
 | `ZONEQ` | Forms the four linearized difference equations for one interval |
 | `ENVEL` | Integrates the outer envelope and supplies the fitting conditions |
+| `TTAU` | Evaluates the blanketed radiative T-tau relation of HVB (1965) |
 | `SAHA` | Solves the envelope's Saha ionization equilibrium (HVB 1965) |
 | `STATE` | Evaluates the BFGH (1965) Appendix A equation of state, degenerate electrons included |
 | `OPAC` | Evaluates the BFGH (1965) Appendix B opacity, H-minus joined at low temperature |
@@ -111,44 +123,63 @@ order in which one would naturally inspect the calculation:
 | `PRINTM` | Prints a complete model in the line-printer layout |
 
 The physics is the Berkeley group's own, restored from the appendices of
-Bodenheimer, Forbes, Gould & Henyey (1965): their Keller-Meyerott
-opacity formula with Mestel conduction, their degenerate-electron
-equation of state, Saha ionization and Bohm-Vitense mixing-length
-convection in the envelope integration, H-minus opacity standing in at
-low temperature for Vardya's atmospheric table, and proton-proton and
-CNO burning. Diffusion and modern opacity or reaction tables are
-absent. This is a study of the numerical method and computing
-environment, not a modern calibrated solar model.
+Bodenheimer, Forbes, Gould & Henyey (1965) and from Henyey, Vardya &
+Bodenheimer (1965): their Keller-Meyerott opacity formula with Mestel
+conduction, their degenerate-electron equation of state, Saha
+ionization, the blanketed T-tau outer radiative layer, Bohm-Vitense
+mixing-length convection in the envelope integration, H-minus opacity
+standing in at low temperature for Vardya's atmospheric table, and
+proton-proton and CNO burning. Diffusion and modern opacity or
+reaction tables are absent. This is a study of the numerical method
+and computing environment, with the period physics carried far enough
+that the model sun lands on the actual one.
 
 ## The supplied calculation
 
-The static model converges in five Henyey iterations. Subsequent models
-normally require two iterations. The 60-model sequence reaches:
+The static model converges in twelve Henyey iterations. Subsequent
+models normally require two or three. The 50-model sequence starts on
+the zero-age main sequence, passes through the present Sun near model
+29, and reaches the old main sequence:
 
 ```text
 MODEL    AGE(YR)       IT   L/LSUN   R/RSUN   TEFF     TC       RHOC    XC
-    1    0.0000E+00    13    0.7954    0.6746   6649   1.372E7    87.32  0.7080
-   60    6.2736E+09     2    1.2670    0.7932   6890   1.767E7   178.30  0.3323
+    1    0.0000E+00    12    0.6965    0.8811   5628   1.348E7    87.35  0.7000
+   29    4.6388E+09     3    1.0060    1.0010   5790   1.572E7   157.50  0.3785
+   50    6.4948E+09     3    1.2050    1.0770   5838   1.754E7   221.20  0.1996
 ```
 
 ### Fitting the actual Sun
 
-The calibration experiment is ongoing, and its history so far is itself
-a faithful reenactment. With an ideal fully ionized envelope the model
-sun came out seven percent compact, and the mixing-length parameter
-could not close the gap - the entire alpha range spanned only
-R = 0.914-0.927 R_sun, isolating the envelope thermodynamics. Restoring
-Saha ionization (the Vardya physics) made the envelope follow the true
-ionization-depressed adiabat and swung the radius compact; restoring
-the 1965 opacity and degeneracy appendices swung it back large. With
-the full stack the luminosity calibrates readily but the radius still
-sits about 25 percent compact and nearly alpha-independent: the
-remaining unrestored ingredient is the production code's outer
-radiative layer - the blanketed T-tau relation and Vardya's
-atmospheric opacity table of Henyey, Vardya & Bodenheimer (1965) -
-which is the next piece scheduled. Henyey's group needed a separate
-paper for exactly this layer; the reconstruction keeps rediscovering
-why.
+The calibration history is itself a faithful reenactment. With an
+ideal fully ionized envelope the model sun came out seven percent
+compact, and the mixing-length parameter could not close the gap - the
+entire alpha range spanned only R = 0.914-0.927 R_sun, isolating the
+envelope thermodynamics. Restoring Saha ionization (the Vardya
+physics) made the envelope follow the true ionization-depressed
+adiabat and swung the radius compact; restoring the 1965 opacity and
+degeneracy appendices swung it back large. With that stack the
+luminosity calibrated readily but the radius sat about 25 percent
+compact and nearly alpha-independent. The reason turned out to be the
+missing outer radiative layer: the envelope march began at the
+photosphere and stepped straight over the superadiabatic region, so
+the mixing-length dial was connected to nothing. Henyey's group needed
+a separate paper for exactly this layer - Henyey, Vardya & Bodenheimer
+(1965) - and restoring its blanketed T-tau relation both moved the
+radius and put alpha back in control.
+
+With the T-tau layer in place the sequence calibrates inside the
+production code's remembered range of alpha between 1 and 2. The
+supplied deck (`X = 0.700`, `Z = 0.020`, `alpha = 1.65`) gives, at the
+solar age of 4.64 Gyr,
+
+```text
+L = 1.006 L_sun   R = 1.001 R_sun   TEFF = 5790 K   TC = 1.57E7 K
+```
+
+against the actual 1.000, 1.000, 5772, and 1.57E7. The remaining
+percent-level residuals are period physics: the reaction rates and
+Vardya's full atmospheric opacity table are still the classical
+interpolation formulae.
 
 The complete radial structures are printed at the initial model, every
 twentieth model, and the final model. In those tables:
@@ -178,10 +209,10 @@ the runtime then imposes the selected 7094 numerical limits.
 
 The saved printout was also generated with a modern legacy Fortran
 compiler as an independent reference. An automated comparison runs the
-same 60 models with IBFTC-64. At the printed precision, the two executions
+same 50 models with IBFTC-64. At the printed precision, the two executions
 agree in luminosity, radius, effective temperature, central temperature,
 central density, central pressure, and central hydrogen abundance. The
-largest relative age difference is about `1.5e-5`, from the different
+largest relative age difference is about `2.8e-5`, from the different
 single-precision arithmetic.
 
 The compiler's precise scope and its known omissions are documented in
@@ -200,7 +231,7 @@ make check-henyey
 ```
 
 That command compiles the source with 7094 arithmetic, reads the two input
-cards, runs all 60 models, and compares the result with the saved reference
+cards, runs all 50 models, and compares the result with the saved reference
 printout. `make check` additionally runs the compiler's language tests.
 
 The essential manual sequence is:

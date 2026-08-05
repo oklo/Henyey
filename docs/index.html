@@ -41,17 +41,17 @@
   <div class="controls">
     <label>Preset
       <select id="preset">
-        <option value="sun">The Sun</option>
+        <option value="sun">The Sun, calibrated</option>
         <option value="half">A 0.5 M☉ dwarf</option>
         <option value="reddwarf">A 0.3 M☉ red dwarf</option>
       </select>
     </label>
     <label>Mass (M☉) <input id="f_mass" type="number" step="0.05" min="0.2" max="2.5" value="1.00"></label>
-    <label>X (hydrogen) <input id="f_x" type="number" step="0.001" min="0.4" max="0.85" value="0.709"></label>
+    <label>X (hydrogen) <input id="f_x" type="number" step="0.001" min="0.4" max="0.85" value="0.700"></label>
     <label>Z (metals) <input id="f_z" type="number" step="0.005" min="0.001" max="0.06" value="0.020"></label>
-    <label>Models <input id="f_models" type="number" step="10" min="1" max="400" value="80"></label>
+    <label>Models <input id="f_models" type="number" step="10" min="1" max="400" value="50"></label>
     <label>Δt₀ (yr) <input id="f_dtyr" type="number" step="1e6" min="1e4" max="1e9" value="1e7"></label>
-    <label>α (mixing length) <input id="f_alfa" type="number" step="0.1" min="0.1" max="3" value="1.5"></label>
+    <label>α (mixing length) <input id="f_alfa" type="number" step="0.1" min="0.1" max="3" value="1.65"></label>
   </div>
   <div id="cards"></div>
   <pre id="deckListing" class="deck-listing" aria-label="Card images as text"></pre>
