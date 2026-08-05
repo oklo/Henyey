@@ -13,8 +13,8 @@ dialect is FORTRAN 77, double precision throughout.
 
 | Ingredient | Source | Status |
 | --- | --- | --- |
-| EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | tables to be acquired |
-| Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | formulae in paper |
+| EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | tables to be acquired; interim: BFGH65 App. A degeneracy installed |
+| Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | formulae in paper; interim: BFGH65 App. B installed |
 | Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | tables in paper |
 | Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | tables in papers |
 | He-rich opacity scaling | LBA97 eq. (2.1): kappa_He = kappa_H [1 - (0.7 - X_H)/2], atmospheric layers only | in paper |
@@ -68,7 +68,21 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    builds (rho_c -> 87), the LBA97 signature; a 0.3 Msun model runs
    200 models to 1.7e11 yr in 1-2 iterations per step, accumulating
    2.3% central 3He with the chain terminating at 3He, as expected at
-   Tc ~ 6e6 K.
+   Tc ~ 6e6 K. UPDATE (2026-08-05): the 3He time-step measure moved
+   from BURN to the main program and now compares the MIXED
+   composition with the pre-step one. Measuring the pre-mix local
+   change had throttled fully convective stars: the hot center's
+   local 3He production is large relative to the mixed reservoir,
+   but convection immediately dilutes it, so the old measure held a
+   0.3 Msun model to dt ~ 2e7 yr indefinitely. With the post-mix
+   measure the same model rides the dt cap (9.5e8 yr) and reaches
+   2.4e11 yr in 400 models, 24x farther. Around 2.3e11 yr
+   (Xc ~ 0.59, still fully convective at Tc = 7.7e6) the model
+   develops a slow wobble - Tc dips ~1%, Xc locally increases from
+   remixing, dt drops to ~3e7 yr - which looks like convective-
+   boundary flapping across time steps: the first captured specimen
+   of the 1997 convergence trouble that phase 7(i) exists to
+   instrument.
 3. **Tabular EOS** — SCVH95 with C1-continuous interpolation (smooth
    derivatives are required by the Newton scheme; see the discontinuity
    discussion and Fig. 3 of HFG 1964). Brown-dwarf-capable at the low
@@ -107,9 +121,30 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    REMAINING for the solar fit: the HVB65 outer radiative layer -
    the T-tau relation (their eq. 10, less blanketing) and a bounded
    mid-temperature opacity standing in for Vardya's atmospheric
-   table. The f77 line has not yet received the BFGH physics
-   (Appendix A is superseded there by Phase 3 SCVH, but Appendix B
-   and the T-tau layer apply).
+   table. UPDATE 3 (2026-08-05): the missing layer was found and
+   both lines now fit the Sun. Root cause of the alpha-insensitive
+   25%-compact radius: the envelope march started at the photosphere
+   and its first column-mass step landed below the entire
+   superadiabatic layer, so the mixing-length parameter was
+   connected to nothing. ENVEL (both lines) now integrates the
+   HVB65 blanketed T-tau relation (eq. 10, coefficients eqs. 11-12,
+   zeta of eq. 9; subroutine TTAU) in optical depth from tau = 0.01
+   to the onset of convective instability, then continues the
+   column-mass march from the column mass actually reached. The
+   f77 line simultaneously received full BFGH parity: Appendix A
+   degeneracy in STATE/STATEV (composition enters as moles of ions
+   and electrons, 3He counted separately), Appendix B opacity in
+   OPAC/OPACV (written in T7 so the constants transcribe verbatim,
+   C1-continuous via centered differences), and the Saha envelope
+   (SAHA/SAHA1, c.g.s.). Solar calibrations: '64 line X = 0.700,
+   alpha = 1.65 gives L = 1.006, R = 1.001, Teff = 5790 at
+   4.64 Gyr; f77 line (CF88 rates run ~7% fainter, X3 = 0 start)
+   X = 0.692, alpha = 1.75 gives L = 0.998, R = 0.999,
+   Teff = 5783, Tc = 1.546e7 at 4.63 Gyr. Both alphas sit inside
+   the production code's remembered range of 1-2. Appendix A
+   remains a placeholder for Phase 3 SCVH; the envelope structure
+   (T-tau layer, onset switch, resolved superadiabatic march) is
+   exactly the scaffold the LB93 case-B atmosphere drops into.
 6. **Validation against the published record** — LBA97 Table 1
    (0.08, 0.15, 0.20 Msun vs. Burrows et al. 1993); the 0.1 Msun
    narrative: ZAMS at Teff = 2228 K, log L = -3.38; 3He peak mass
