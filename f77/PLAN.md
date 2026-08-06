@@ -14,10 +14,10 @@ dialect is FORTRAN 77, double precision throughout.
 | Ingredient | Source | Status |
 | --- | --- | --- |
 | EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | DONE (2026-08-06): C1 Hermite reader + additive-volume mixing + (T,Q) inversion, BFGH App. A above the table ceiling, card-2 flag for legacy EOS |
-| Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | formulae in paper; interim: BFGH65 App. B installed |
-| Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | tables in paper |
-| Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | tables in papers |
-| He-rich opacity scaling | LBA97 eq. (2.1): kappa_He = kappa_H [1 - (0.7 - X_H)/2], atmospheric layers only | in paper |
+| Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | WKM90 unobtainable (Elsevier, no OSTI/public copy); BFGH65 App. B serves as the high-T piece |
+| Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | scan acquired (papers/hl69.pdf); transcription deferred, Mestel B6 stands in |
+| Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | AJR83 Table 2 DONE (2026-08-06, molecules + grains to 700 K); PMC85 (Icarus 64, 471) paywalled, matters only below 700 K - deferred |
+| He-rich opacity scaling | LBA97 eq. (2.1): kappa_He = kappa_H [1 - (0.7 - X_H)/2], atmospheric layers only | DONE (2026-08-06) |
 | Nuclear rates | Bahcall (1989); 3He followed as an explicit species out of equilibrium below Tc ~ 8e6 K (p+p and 3He+3He separate); PPII/PPIII branching from Parker, Bahcall & Fowler (1964); CNO above 2e7 K; initial 3He = 0; no primordial D | DONE via CF88 + BFGH65 App. C network (Phase 2b): explicit C12/C13/N14/O16, Be7 energy branching |
 | Screening | Graboske, DeWitt, Grossman & Cooper (1973), weak + intermediate | in print |
 | Convection | Adiabatic gradient wherever convective (justified in LB93 via Burrows et al. 1989 mixing-length insensitivity); nonadiabatic MLT only in the atmospheric layers | — |
@@ -166,7 +166,53 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    relative to the run directory.
 4. **Opacity stack** — WKM90 analytic high-T + AJR83/PMC85 low-T +
    Hubbard-Lampe conduction, joined smoothly; eq. (2.1) He-enrichment
-   scaling.
+   scaling. SUBSTANTIALLY DONE (2026-08-06), with two documented
+   substitutions. INSTALLED: the Alexander, Johnson & Rypma (1983)
+   Table 2 master grid - molecules (H2O, TiO, CO, CN) plus silicate
+   and iron grains, log T = 2.80-4.00 over log rho = -18 to -2 -
+   transcribed from the ApJ scan into BLOCK DATA AJRDAT and
+   interpolated C1 in both variables by cubic Hermite with
+   Fritsch-Carlson monotone-limited slopes (the grain-condensation
+   cells jump by decades between neighbors, and an unlimited cubic
+   oscillates there, which Newton cannot abide); the LBA97 eq. (2.1)
+   helium-enrichment scaling; and a cubic-Hermite bridge in log T
+   from the AJR ceiling (1e4 K) to the BFGH interior formula floor
+   (1e5 K) with end slopes matched to the adjoining branches - the
+   HVB65 treatment, which also RETIRES the H-minus stand-in whose
+   T**9 fit is unphysical past 6000 K (its accidental interplay with
+   the interior formula had produced kappa ~ 1800 near 1.3e4 K).
+   Card-2 field 9: blank = new stack, 1 = legacy BFGH + H-minus.
+   SUBSTITUTIONS: WKM90 (ADNDT 45, 209) is Elsevier-paywalled with
+   no OSTI or public digitization, so the BFGH65 Appendix B formula
+   remains the high-T radiative piece (it calibrates the Sun and is
+   period-consistent); PMC85 (Icarus 64, 471, same barrier) matters
+   only below the 700 K floor of the AJR grid, outside the stellar
+   range computed here - both deferred, not forgotten. Hubbard &
+   Lampe (1969) conduction: the full ApJS scan IS acquired
+   (papers/hl69.pdf) but its long tables await their own
+   transcription session; Mestel (BFGH B6) stands in.
+
+   Convergence work uncovered en route: (i) START's epsilon-shaped
+   pseudoflux guess understates L up to tenfold; for stars with
+   radiative interiors that misclassifies the outer convective zones
+   at the first CONVCK (radiative gradient ~ kappa*F falls below
+   0.40) and Newton diverges with corrections pinned at the
+   misclassified zones - yet fully convective dwarfs PREFER the soft
+   unscaled start (the all-adiabatic system is near-singular and the
+   accidental stiffness helps; the '97 softness again). Resolution:
+   the static model is solved from the unscaled guess, and on
+   failure is automatically retried once with the pseudoflux
+   normalized to the luminosity guess (START's IBOOST argument).
+   The Sun retries once and then converges in 6 iterations.
+   (ii) The solar calibration moves to X = 0.691, alpha = 1.26
+   (from 1.72 under the legacy opacity; still within the production
+   code's remembered 1-2): L = 0.996, R = 1.001, Teff = 5775
+   against the actual 5772, Tc = 1.540e7 at 4.56 Gyr. (iii) The
+   0.15 and 0.2 Msun models run stably but sit at Teff = 1712 and
+   2001 K - the grey T-tau photosphere parks them in the
+   grain-condensation zone, several hundred K cool of LBA97; the
+   case-B atmosphere of Phase 5 is the physical cure, exactly as it
+   was for LBA97 themselves.
 5. **Atmosphere** — LB93 case-B radiative atmosphere with MLT in the
    nonadiabatic layers, supplying the fitting conditions and their
    (R, L) derivatives as in the present ENVEL. PARTIAL (July 2026):
