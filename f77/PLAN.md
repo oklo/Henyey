@@ -13,7 +13,7 @@ dialect is FORTRAN 77, double precision throughout.
 
 | Ingredient | Source | Status |
 | --- | --- | --- |
-| EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | tables ACQUIRED (2026-08-05, `scvh/`, via the YREC public release); interim: BFGH65 App. A degeneracy installed |
+| EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | DONE (2026-08-06): C1 Hermite reader + additive-volume mixing + (T,Q) inversion, BFGH App. A above the table ceiling, card-2 flag for legacy EOS |
 | Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | formulae in paper; interim: BFGH65 App. B installed |
 | Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | tables in paper |
 | Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | tables in papers |
@@ -134,10 +134,36 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    H and He tables (63 isotherms, log T = 2.10-7.06, log P from 4.0
    in 0.2 steps, with rho, S, U, the four log-derivatives, and
    grad-ad per point) are in `scvh/` with provenance and format notes
-   in `scvh/README.md`. Implementation remains: read + bicubic-or-
-   Akima C1 interpolation in (log T, log P), additive-volume mixing
-   at given X with the ideal entropy of mixing, and the inversion to
-   the code's (T, Q) variables.
+   in `scvh/README.md`.
+
+   **DONE (2026-08-06).** SCVRD reads both tables at startup with the
+   grid verified against the published spacing; the log-log slopes of
+   U are derived at each node from the tabulated rho and S
+   derivatives through dU = T dS + (P/rho^2) drho. SCVI1 interpolates
+   log rho and log U with cubic Hermite segments whose end slopes ARE
+   the tabulated derivatives - the surface honors the published
+   derivatives exactly and is C1 in both log P and log T (Hermite
+   across isotherms on the tabulated T-slopes), with tame linear
+   continuation beyond a table row. SCVEV inverts to the code's
+   (T, Q) variables by Newton on log P against the additive-volume
+   mixture density (X on hydrogen, 1-X on helium, which carries the
+   metal mass; LB93 sec. 2), converged to 1e-11 so the centered
+   differences taken by STATE stay smooth; radiation is added
+   explicitly. STATEB dispatches: SCVH below log T = 6.90, BFGH
+   App. A above 7.02 (the tables end at 7.06 and solar cores overrun
+   them), a C1 smoothstep between - in the overlap the two agree to
+   0.06% in P and 0.03% in E at test conditions, so the join is
+   invisible. Card 2 field 8 selects: blank/0 = SCVH (the new
+   standard), 1 = BFGH throughout (legacy, reproduces the Phase 2b
+   runs exactly). Validation: interpolation reproduces table nodes to
+   machine precision; the solar deck (X = 0.691, alpha = 1.72) holds
+   its calibration on the new EOS without retuning (L = 0.996,
+   R = 0.998, Teff = 5783, Tc = 1.540e7 at 4.56 Gyr); 0.3 Msun runs
+   400 models to 3.7e11 yr at the dt cap with a stronger He3 core
+   expansion (rho_c falls 82 to 66); 0.15 Msun is stable at ZAMS
+   Teff = 2229 K, still one LBA97 mass-bin too cool for want of the
+   Phase 4 molecular opacities. Tables must sit at `scvh/` (or `.`)
+   relative to the run directory.
 4. **Opacity stack** — WKM90 analytic high-T + AJR83/PMC85 low-T +
    Hubbard-Lampe conduction, joined smoothly; eq. (2.1) He-enrichment
    scaling.
