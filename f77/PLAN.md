@@ -18,7 +18,7 @@ dialect is FORTRAN 77, double precision throughout.
 | Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | tables in paper |
 | Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | tables in papers |
 | He-rich opacity scaling | LBA97 eq. (2.1): kappa_He = kappa_H [1 - (0.7 - X_H)/2], atmospheric layers only | in paper |
-| Nuclear rates | Bahcall (1989); 3He followed as an explicit species out of equilibrium below Tc ~ 8e6 K (p+p and 3He+3He separate); PPII/PPIII branching from Parker, Bahcall & Fowler (1964); CNO above 2e7 K; initial 3He = 0; no primordial D | in print |
+| Nuclear rates | Bahcall (1989); 3He followed as an explicit species out of equilibrium below Tc ~ 8e6 K (p+p and 3He+3He separate); PPII/PPIII branching from Parker, Bahcall & Fowler (1964); CNO above 2e7 K; initial 3He = 0; no primordial D | DONE via CF88 + BFGH65 App. C network (Phase 2b): explicit C12/C13/N14/O16, Be7 energy branching |
 | Screening | Graboske, DeWitt, Grossman & Cooper (1973), weak + intermediate | in print |
 | Convection | Adiabatic gradient wherever convective (justified in LB93 via Burrows et al. 1989 mixing-length insensitivity); nonadiabatic MLT only in the atmospheric layers | — |
 | Atmosphere (LB93 "case B") | Given Teff and g at the outer mesh point, iterate EOS + hydrostatic equilibrium for P(tau); take rho(P,T) at tau = 2/3 as the outer boundary condition | described in LB93 |
@@ -68,7 +68,51 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    builds (rho_c -> 87), the LBA97 signature; a 0.3 Msun model runs
    200 models to 1.7e11 yr in 1-2 iterations per step, accumulating
    2.3% central 3He with the chain terminating at 3He, as expected at
-   Tc ~ 6e6 K. UPDATE (2026-08-05): the 3He time-step measure moved
+   Tc ~ 6e6 K.
+
+   **Phase 2b - DONE (2026-08-05).** The full network of BFGH65
+   Appendix C: seven explicit species (H1, He3, He4, C12, C13, N14,
+   O16) advanced by the appendix's implicit scheme (their eq. C9) in
+   its three-step iterated cycle - the linear CNO solve of eqs.
+   (C17)-(C20) in closed form, the He3 quadratic (C21), the H1
+   quadratic (C22) with He4 from the sum rule (C23). N15 branches by
+   the constant fraction f = 1.1e-3 to O16; the Be7 branching (CF88
+   proton capture against CF88 electron capture) enters the energy
+   only, PPII completion at 18.982 MeV against PPIII at 12.50 MeV, as
+   Appendix C prescribes. CNO rates are CF88 (C12, C13, N14 bottleneck
+   as before, O16(p,g) with its saturation form), screened per pair
+   charge (Z1*Z2 = 6, 7, 8) by the exact GDGC intermediate form.
+   Initial CNO: 0.172/0.002/0.053/0.482 of Z for C12/C13/N14/O16, the
+   remaining 0.291 of Z inert; ENUC evaluates the seven-channel
+   epsilon with derivatives by centered differences of an ENUCV
+   evaluator (house style); MIX homogenizes all six followed species;
+   PRINTM appends the central CNO abundances. Validation: the solar
+   model converts central C12 to N14 within ~0.5 Gyr and sits at CN
+   equilibrium (C13/C12 = 0.31) with O16 slowly draining to N14 -
+   exactly Peter's recollection that CNO at solar abundances went to
+   equilibrium in the pre-MS; recalibrated solar deck X = 0.691,
+   alpha = 1.72 gives L = 0.994, R = 1.000, Teff = 5776, Tc = 1.539e7
+   at 4.57 Gyr.
+
+   **A numerical lesson worth keeping.** First runs of the new network
+   destroyed hydrogen ~10x faster than the luminosity could account
+   for. The cause was catastrophic cancellation in the backward-Euler
+   quadratic root (-B + SQRT(B**2 - 4AC))/(2A): at cool mesh points
+   the quadratic coefficient A ~ Dt*rate collapses toward zero, the
+   root becomes 0/0, and the square root's last-bit error is amplified
+   by 1/A into composition noise reaching percent level per step,
+   which convective mixing then spreads over the star. The He3 update
+   had carried the same unstable form since Phase 2. Both quadratics
+   now use the cancellation-free conjugate root 2(-C)/(B + SQRT(...)),
+   exact as A -> 0. With the stable roots the 0.3 Msun model runs 400
+   models to 3.7e11 yr glued to the dt cap, shows the LBA97 core
+   expansion (Tc dips from 7.04e6 to 6.75e6 as He3 builds, then
+   recovers), and the "boundary flapping" wobble recorded below is
+   gone - that specimen was largely this cancellation noise, not
+   convection-zone physics. The phase 7(i) instrumentation interest
+   stands, but with a cleaner baseline.
+
+   UPDATE (2026-08-05): the 3He time-step measure moved
    from BURN to the main program and now compares the MIXED
    composition with the pre-step one. Measuring the pre-mix local
    change had throttled fully convective stars: the hot center's
