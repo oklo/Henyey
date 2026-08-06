@@ -13,7 +13,7 @@ dialect is FORTRAN 77, double precision throughout.
 
 | Ingredient | Source | Status |
 | --- | --- | --- |
-| EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | tables to be acquired; interim: BFGH65 App. A degeneracy installed |
+| EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | tables ACQUIRED (2026-08-05, `scvh/`, via the YREC public release); interim: BFGH65 App. A degeneracy installed |
 | Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | formulae in paper; interim: BFGH65 App. B installed |
 | Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | tables in paper |
 | Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | tables in papers |
@@ -130,7 +130,14 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
 3. **Tabular EOS** — SCVH95 with C1-continuous interpolation (smooth
    derivatives are required by the Newton scheme; see the discontinuity
    discussion and Fig. 3 of HFG 1964). Brown-dwarf-capable at the low
-   end.
+   end. TABLES ACQUIRED (2026-08-05): the original interpolated-form
+   H and He tables (63 isotherms, log T = 2.10-7.06, log P from 4.0
+   in 0.2 steps, with rho, S, U, the four log-derivatives, and
+   grad-ad per point) are in `scvh/` with provenance and format notes
+   in `scvh/README.md`. Implementation remains: read + bicubic-or-
+   Akima C1 interpolation in (log T, log P), additive-volume mixing
+   at given X with the ideal entropy of mixing, and the inversion to
+   the code's (T, Q) variables.
 4. **Opacity stack** — WKM90 analytic high-T + AJR83/PMC85 low-T +
    Hubbard-Lampe conduction, joined smoothly; eq. (2.1) He-enrichment
    scaling.
