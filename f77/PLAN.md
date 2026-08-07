@@ -14,8 +14,8 @@ dialect is FORTRAN 77, double precision throughout.
 | Ingredient | Source | Status |
 | --- | --- | --- |
 | EOS | Saumon, Chabrier & Van Horn (1995) H and He tables, mass-weighted (LB93 used Fontaine, Graboske & Van Horn 1977, additive volumes) | DONE (2026-08-06): C1 Hermite reader + additive-volume mixing + (T,Q) inversion, BFGH App. A above the table ceiling, card-2 flag for legacy EOS |
-| Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | WKM90 unobtainable (Elsevier, no OSTI/public copy); BFGH65 App. B serves as the high-T piece |
-| Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | scan acquired (papers/hl69.pdf); transcription deferred, Mestel B6 stands in |
+| Interior radiative opacity | Weiss, Keady & Magee (1990) analytic formulations; King IVa (H-rich) to Ross-Aller 2 (He-rich), linear interpolation in composition | DONE (2026-08-07): King IVa itself, transcribed from Cox & Tabor (1976) Table 8 - LB93's named source - as the absolute anchor, BFGH App. B supplying composition scaling about the King mixture |
+| Conductive opacity | Hubbard & Lampe (1969) ApJS tables, H and He mixtures | DONE (2026-08-07): H and He tables transcribed on the log rho = 0.5(0.5)5.0 x log T = 5.0(0.2)7.6 subgrid, log-linear mixture in X, reciprocal join; Mestel remains on the legacy path |
 | Low-T molecular opacity | Alexander, Johnson & Rypma (1983); grains/ice from Pollack, McKay & Christofferson (1985) | AJR83 Table 2 DONE (2026-08-06, molecules + grains to 700 K); PMC85 (Icarus 64, 471) paywalled, matters only below 700 K - deferred |
 | He-rich opacity scaling | LBA97 eq. (2.1): kappa_He = kappa_H [1 - (0.7 - X_H)/2], atmospheric layers only | DONE (2026-08-06) |
 | Nuclear rates | Bahcall (1989); 3He followed as an explicit species out of equilibrium below Tc ~ 8e6 K (p+p and 3He+3He separate); PPII/PPIII branching from Parker, Bahcall & Fowler (1964); CNO above 2e7 K; initial 3He = 0; no primordial D | DONE via CF88 + BFGH65 App. C network (Phase 2b): explicit C12/C13/N14/O16, Be7 energy branching |
@@ -213,6 +213,35 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    grain-condensation zone, several hundred K cool of LBA97; the
    case-B atmosphere of Phase 5 is the physical cure, exactly as it
    was for LBA97 themselves.
+
+   **UPDATE (2026-08-07) - conduction, King IVa, and a lesson in
+   Hayashi physics.** The Hubbard & Lampe (1969) conduction tables
+   (H and He, transcribed from the ApJS scan on the subgrid that
+   brackets old-dwarf cores, ragged exclusion regions preserved as
+   sentinels and bridged at run time) now supply kappa(cond) on the
+   Phase-4 path, joined reciprocally per their eq. (3); Mestel
+   remains on the legacy path. The interior radiative opacity is now
+   the King IVa table itself, transcribed from Cox & Tabor (1976)
+   Table 8 (the mixture LB93 names), stored as printed and
+   log-converted at first call, with the BFGH formula reduced to
+   supplying composition scaling about the King mixture. Two
+   findings: (i) the fully convective dwarfs are UNMOVED by the
+   interior-opacity change - to five digits - because a Hayashi-line
+   star's structure depends only on its photosphere and its adiabat;
+   the model-vs-LBA97 brightness offset therefore lives in the
+   ATMOSPHERE (their fuller molecular/grain treatment ran cooler
+   than our AJR-plus-grey stack), not the interior, and since LBA97
+   sat cool and dim of observation while these models sit closer to
+   the modern Teff scale, the offset is not obviously a defect.
+   (ii) The Sun, with its radiative interior, responded strongly:
+   King IVa runs ~25 percent less opaque than the BFGH formula
+   through the solar radiative zone (the famous pre-OPAL
+   under-opacity - at the actual solar center King IVa gives
+   kappa = 1.2, matching modern OPAL), and the calibration moves to
+   X = 0.738, alpha = 1.82 - the higher hydrogen abundance that
+   pre-OPAL solar models historically required, which is itself a
+   period-authentic result. Calibrated: L = 0.999, R = 0.997,
+   Teff = 5791, Tc = 1.52e7 at 4.54 Gyr.
 5. **Atmosphere** — LB93 case-B radiative atmosphere with MLT in the
    nonadiabatic layers, supplying the fitting conditions and their
    (R, L) derivatives as in the present ENVEL.
