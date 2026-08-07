@@ -20,8 +20,8 @@ dialect is FORTRAN 77, double precision throughout.
 | He-rich opacity scaling | LBA97 eq. (2.1): kappa_He = kappa_H [1 - (0.7 - X_H)/2], atmospheric layers only | DONE (2026-08-06) |
 | Nuclear rates | Bahcall (1989); 3He followed as an explicit species out of equilibrium below Tc ~ 8e6 K (p+p and 3He+3He separate); PPII/PPIII branching from Parker, Bahcall & Fowler (1964); CNO above 2e7 K; initial 3He = 0; no primordial D | DONE via CF88 + BFGH65 App. C network (Phase 2b): explicit C12/C13/N14/O16, Be7 energy branching |
 | Screening | Graboske, DeWitt, Grossman & Cooper (1973), weak + intermediate | in print |
-| Convection | Adiabatic gradient wherever convective (justified in LB93 via Burrows et al. 1989 mixing-length insensitivity); nonadiabatic MLT only in the atmospheric layers | — |
-| Atmosphere (LB93 "case B") | Given Teff and g at the outer mesh point, iterate EOS + hydrostatic equilibrium for P(tau); take rho(P,T) at tau = 2/3 as the outer boundary condition | described in LB93 |
+| Convection | Adiabatic gradient wherever convective (justified in LB93 via Burrows et al. 1989 mixing-length insensitivity); nonadiabatic MLT only in the atmospheric layers | DONE - BV MLT in the envelope march, adiabatic (0.40) interior; alpha available to test the insensitivity |
+| Atmosphere (LB93 "case B") | Given Teff and g at the outer mesh point, iterate EOS + hydrostatic equilibrium for P(tau); take rho(P,T) at tau = 2/3 as the outer boundary condition | DONE (2026-08-06): SCVENV/THERME on SCVH thermodynamics, grey T-tau, MLT layers |
 | Composition | X = 0.70, Y = 0.28, Z = 0.02 | — |
 
 Start/stop conventions from LB93: models begin high on the Hayashi track
@@ -215,7 +215,46 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    was for LBA97 themselves.
 5. **Atmosphere** — LB93 case-B radiative atmosphere with MLT in the
    nonadiabatic layers, supplying the fitting conditions and their
-   (R, L) derivatives as in the present ENVEL. PARTIAL (July 2026):
+   (R, L) derivatives as in the present ENVEL.
+
+   **DONE (2026-08-06).** The case-B physics of LB93 sec. 2 - "the
+   atmospheric structure was determined by iterating between the
+   equation of state and the equation of hydrostatic equilibrium to
+   determine the pressure as a function of optical depth" - is now
+   the IEOS = 0 envelope. SCVENV supplies the envelope
+   thermodynamics (rho, cP, delta, grad-ad) directly from the SCVH
+   tables at given (T, P) - no inversion needed on that side - with
+   the mixture handled by additive volumes and the cP/delta route
+   (grad-ad itself does not mass-weight); SCVI1 gained the two
+   T-slope outputs this requires. THERME dispatches SCVH/Saha by the
+   EOS flag. The tables carry H2, so cool envelopes now follow the
+   true dissociation-depressed adiabat (grad-ad = 0.13 at 2800 K
+   where the molecule-free Saha treatment saw ~0.4) - this, with the
+   Phase 4 molecular opacities, is what moves the M dwarfs onto
+   physical ground. The T-tau law in case-B mode is the grey
+   Boehm-Vitense fit to the exact Hopf function (the zeta = 0 limit
+   of the HVB relation already in TTAU; LB93's atmosphere is grey),
+   the blanketed law remaining on the legacy path. The march
+   structure is unchanged - tau-integration through tau = 2/3 to
+   convective onset, then the column-mass march with Boehm-Vitense
+   MLT in the atmospheric layers (LBA97's adiabatic-everywhere
+   assumption is justified by mixing-length insensitivity, which
+   alpha on card 2 lets us verify rather than assume).
+   RESULTS: ZAMS Teff moves from 2001 to 3698 K at 0.2 Msun, 2370
+   to 3828 at 0.3, 3467 to 4073 at 0.5 - the several-hundred-K
+   grain-zone pathology of Phase 4 is gone. 0.15 Msun converges
+   (Teff = 3566, L = 4.0e-3) after START's very-low-mass luminosity
+   guess was repaired (the M**3.5 law understates VLM luminosities
+   threefold; below 0.6 Msun a M**1.86 law fitted to this program's
+   own converged models is used). Solar recalibration: X = 0.691,
+   alpha = 1.36 gives L = 0.996, R = 1.000, Teff = 5778 against the
+   actual 5772, Tc = 1.540e7 at 4.56 Gyr. OPEN: 0.1 Msun still
+   refuses a cold static start - the M-L relation plummets toward
+   the hydrogen-burning limit; the LBA97-faithful cure is to start
+   models high on the Hayashi track and contract onto the MS, which
+   belongs with the Phase 6 validation work.
+
+   HISTORY - PARTIAL (July 2026):
    Boehm-Vitense MLT with free alpha (card 2, blank = 1.5) is
    installed in ENVEL of both code lines; the solar-radius experiment
    shows the full alpha range spans only R = 0.914-0.927 Rsun with the
