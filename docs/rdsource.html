@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OLD RED DWARFS — the program, annotated</title>
+<meta name="description" content="The recreated 1997 red-dwarf evolution program in FORTRAN 77, printed in full with an annotated guide in the margin.">
+<link rel="preload" href="fonts/texgyreschola-regular.otf" as="font" type="font/otf" crossorigin>
+<link rel="preload" href="fonts/texgyreschola-bold.otf" as="font" type="font/otf" crossorigin>
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+</head>
+<body>
+<header class="hero">
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle color scheme">◐</button>
+  <h1>The program</h1>
+  <p class="lede">
+    What follows is the entire program — some 2,400 lines of FORTRAN&nbsp;77,
+    the same code that runs when you press RUN on the
+    <a href="reddwarfs.html#job">red-dwarf page</a>. It is the direct
+    descendant of the 1964 deck on <a href="source.html">the companion
+    listing</a>: the same Henyey solver, now in double precision, carrying the
+    published physics of the 1993 and 1997 papers — the SCVH equation of
+    state, the molecule-and-grain opacities, the seven-species reaction
+    network, the case-B atmosphere, and the Hayashi-track starts. The notes in
+    the margin say what each part is doing, where it comes from in the
+    literature, and — where it applies — what it took to make it converge.
+    Begin with the flow of the calculation, then read the listing itself. The
+    boxes of the flow chart are links into the code.
+  </p>
+</header>
+
+<main>
+<section class="section">
+  <h2><span class="secno">4–1</span>The flow of the calculation</h2>
+  <figure class="chartcard wide flowcard" style="margin-top:14px">
+    <div class="flowfig" id="flowfig"></div>
+    <figcaption class="caption"><b>Fig.&nbsp;8.</b> The logical pattern of the calculation —
+      still the pattern of Fig.&nbsp;2 of Henyey, Forbes &amp; Gould (1964), with the organs
+      of 1997 installed: the tables are read before anything else, the first approximation
+      may begin on the Hayashi track, and the composition step advances a seven-species
+      network. Every box is a link into the listing below.</figcaption>
+  </figure>
+</section>
+
+<section class="section">
+  <h2><span class="secno">4–2</span>The listing</h2>
+  <p>Fixed form still: columns 1–5 hold statement labels (printed red),
+     column 6 marks a continuation, columns 7–72 carry the statement — but the
+     dialect is FORTRAN&nbsp;77, with block IF and double precision throughout.
+     Lines whose number is red carry a note in the margin; on a narrow screen
+     the notes move inline. The program compiles with any Fortran compiler in
+     legacy mode, and the browser copy was translated to C by a freshly built
+     f2c — the venerable translator, itself a piece of the era.</p>
+  <div class="src-layout" style="margin-top:16px">
+    <div class="codepane" id="codepane"><div style="padding:20px 16px;color:var(--ink-3);font-family:var(--serif);font-style:italic">fetching the program…</div></div>
+    <div class="notespane" id="notespane"></div>
+  </div>
+  <p class="pagenav" style="margin-top:14px">
+    <a href="reddwarfs.html">← back to the run</a>
+    <a href="source.html">the 1964 listing</a>
+    <a href="https://github.com/oklo/Henyey">the repository</a>
+    <a href="https://articles.adsabs.harvard.edu/pdf/1997ApJ...482..420L">the 1997 paper</a>
+  </p>
+</section>
+</main>
+
+<footer>
+  <p class="mono">OLD RED DWARFS · oklo/Henyey · published physics, modern speed · no data leaves your browser</p>
+</footer>
+
+<script src="rdsource.js"></script>
+</body>
+</html>

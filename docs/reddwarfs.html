@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OLD RED DWARFS — the end of the main sequence, computed now</title>
+<meta name="description" content="The Laughlin, Bodenheimer & Adams (1997) red-dwarf evolution code, recreated in FORTRAN 77 and running live in your browser: trillion-year stellar lifetimes in seconds.">
+<link rel="preload" href="fonts/texgyreschola-regular.otf" as="font" type="font/otf" crossorigin>
+<link rel="preload" href="fonts/texgyreschola-bold.otf" as="font" type="font/otf" crossorigin>
+<link rel="stylesheet" href="site.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<style>
+.controls .checkline { flex-direction: row; align-items: center; gap: 6px; align-self: end; padding-bottom: 8px; }
+.controls .checkline input { width: auto; accent-color: var(--red); }
+</style>
+</head>
+<body>
+<header class="hero">
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle color scheme">◐</button>
+  <h1>OLD RED DWARFS</h1>
+  <p class="lede">
+    The universe is not yet old enough to contain an old red dwarf. A star of
+    a tenth of a solar mass burns its hydrogen for trillions of years — hundreds
+    of times the present age of the universe — and what becomes of it was worked
+    out by calculation in “The End of the Main Sequence” (Laughlin, Bodenheimer
+    &amp; Adams 1997): the smallest stars never become red giants; they grow
+    steadily hotter, briefly outshine their entire prior lives, and die as
+    helium white dwarfs. This page carries a working recreation of that
+    calculation — a FORTRAN&nbsp;77 descendant of the same 1964 Henyey code that
+    runs on <a href="index.html">the companion page</a>, rebuilt from the
+    published physics: the Saumon–Chabrier–Van&nbsp;Horn equation of state, the
+    molecule-and-grain opacities, the full pp-chain and CNO reaction network
+    with ³He followed out of equilibrium, and a grey radiative atmosphere.
+    A star is born high on the Hayashi track and integrated until the fuel is
+    gone. The trillion years take a few seconds. Run one now.
+  </p>
+  <p class="lede-actions"><a class="btn" href="#job">Run a star ↓</a>
+     <a class="btn ghost" href="rdsource.html">Read the source</a>
+     <a class="btn ghost" href="index.html">The 1964 machine</a></p>
+</header>
+
+<main>
+<section id="job" class="section">
+  <h2><span class="secno">3–1</span>The run</h2>
+  <p>No punched cards this time — by 1997 the input was two lines in a file.
+     The first line carries the star (mass, hydrogen, metals, initial ³He);
+     the second the run (mesh, models, time step, tolerances, mixing length,
+     and three switches for the equation of state, the opacity, and the
+     starting point). The presets are the paper's own cast of characters.</p>
+  <div class="controls">
+    <label>Preset
+      <select id="preset">
+        <option value="flagship">0.10 M☉ — the flagship</option>
+        <option value="browndwarf">0.08 M☉ — fails to ignite</option>
+        <option value="m015">0.15 M☉</option>
+        <option value="m020">0.20 M☉</option>
+        <option value="m030">0.30 M☉ (main sequence)</option>
+        <option value="sun">The Sun, for scale</option>
+      </select>
+    </label>
+    <label>Mass (M☉) <input id="f_mass" type="number" step="0.01" min="0.06" max="2.0" value="0.10"></label>
+    <label>X (hydrogen) <input id="f_x" type="number" step="0.001" min="0.4" max="0.85" value="0.700"></label>
+    <label>Models <input id="f_models" type="number" step="50" min="1" max="3000" value="1200"></label>
+    <label>Δt₀ (yr) <input id="f_dtyr" type="number" step="1e4" min="1e3" max="1e9" value="1e4"></label>
+    <label>α (mixing length) <input id="f_alfa" type="number" step="0.1" min="0.1" max="3" value="1.36"></label>
+    <label class="checkline"><input id="f_ihay" type="checkbox" checked> Hayashi start</label>
+  </div>
+  <pre id="deckListing" class="deck-listing" aria-label="Input lines as text"></pre>
+  <p class="run-row">
+    <button id="submitJob" class="btn primary">RUN</button>
+    <span id="jobStatus" class="job-status">machine idle</span>
+  </p>
+</section>
+
+<section class="section">
+  <h2><span class="secno">3–2</span>The job</h2>
+  <p>The output is still a line printer at heart. Each line is one converged
+     model; a Hayashi start opens with the note that the first static model was
+     closed by an artificial contraction luminosity, and the
+     <span class="mono">DT(YR)</span> column then stretches from ten thousand
+     years to a billion as the star settles onto the main sequence and its
+     evolution slows to a glacier's pace.</p>
+  <div id="printer" class="printer" aria-live="polite"><div class="printer-scroll" id="printerScroll"></div></div>
+</section>
+
+<section class="section">
+  <h2><span class="secno">3–3</span>The star</h2>
+  <p>The figures follow the 1997 paper. Fig.&nbsp;1 is its Figure&nbsp;1: the
+     life of the star in the Hertzsprung–Russell diagram, effective temperature
+     linear and reversed in the journal's convention, each dot one converged
+     model. Fig.&nbsp;2 is the paper's inset: the slow alchemy of the core —
+     hydrogen into helium-3 into helium-4 — on a clock that reads in trillions
+     of years.</p>
+  <div class="chartgrid">
+    <figure class="chartcard wide" id="hrChart"><div class="chartbox" id="hrBox"></div><figcaption class="caption"><b>Fig.&nbsp;1.</b> Evolution in the Hertzsprung–Russell diagram, after Fig.&nbsp;1 of LBA97. Each dot is a separately converged model; the red point is the current one. A Hayashi start descends the right-hand track, turns at the zero-age main sequence, and creeps blueward as the star ages.</figcaption></figure>
+    <figure class="chartcard wide" id="compChart"><div class="chartbox" id="compBox"></div><figcaption class="caption"><b>Fig.&nbsp;2.</b> Core composition against time, after the inset of LBA97 Fig.&nbsp;1: mass fractions of hydrogen, ³He (dashed), and ⁴He at the center. The ³He isotope rises to a few-percent peak and is then consumed — the little bump that shapes a trillion years of structure.</figcaption></figure>
+    <figure class="chartcard" id="lumChart"><div class="chartbox" id="lumBox"></div><figcaption class="caption"><b>Fig.&nbsp;3.</b> Luminosity, in units of <i>L</i>☉.</figcaption></figure>
+    <figure class="chartcard" id="radChart"><div class="chartbox" id="radBox"></div><figcaption class="caption"><b>Fig.&nbsp;4.</b> Radius, in units of <i>R</i>☉.</figcaption></figure>
+    <figure class="chartcard" id="tcChart"><div class="chartbox" id="tcBox"></div><figcaption class="caption"><b>Fig.&nbsp;5.</b> Central temperature (K).</figcaption></figure>
+    <figure class="chartcard" id="rhocChart"><div class="chartbox" id="rhocBox"></div><figcaption class="caption"><b>Fig.&nbsp;6.</b> Central density (g&nbsp;cm⁻³). Watch it <i>fall</i> during the ³He epoch — the core expands as the isotope builds — before degeneracy wins in the end.</figcaption></figure>
+  </div>
+  <figure class="chartcard wide" id="structCard">
+    <p class="scrub-row"><input type="range" id="structScrub" min="0" max="0" value="0" step="1" disabled>
+       <span id="structLabel" class="mono">no structure printed yet</span></p>
+    <div class="chartgrid three">
+      <div class="chartbox" id="stTBox"></div>
+      <div class="chartbox" id="stRhoBox"></div>
+      <div class="chartbox" id="stLBox"></div>
+    </div>
+    <figcaption class="caption"><b>Fig.&nbsp;7.</b> The interior run of temperature, density, and luminosity
+      against the mass fraction, at the printed models. Shaded bands mark convective regions —
+      for most of a red dwarf's life, the whole star.</figcaption>
+  </figure>
+  <details class="tableview"><summary>View the track as a table</summary><div id="trackTable"></div></details>
+</section>
+
+<section class="section prose">
+  <h2><span class="secno">3–4</span>The physics</h2>
+  <p>The solver is the Henyey method of 1964, unchanged in spirit: four
+     difference equations on a Lagrangian mesh, linearized and solved
+     simultaneously by Newton–Raphson with a block elimination. Around that
+     skeleton this line carries the physics of the 1997 paper. The equation of
+     state is the Saumon–Chabrier–Van&nbsp;Horn (1995) tables for hydrogen and
+     helium — the original distributed tables, interpolated with their own
+     published derivatives so the surface is smooth in exactly the way Newton
+     demands — mixed by additive volumes, with the 1965 Berkeley degeneracy
+     formula taking over above the tables' ceiling. The low-temperature opacity
+     is the molecule-and-grain Rosseland grid of Alexander, Johnson &amp; Rypma
+     (1983), whose water-vapor blanketing and grain condensation set the very
+     shape of a red dwarf. The nuclear network follows the 1965 Appendix&nbsp;C
+     scheme with all seven species explicit — H, ³He, ⁴He, C, ¹³C, N, O — so the
+     ³He bump and the CN-cycle equilibration happen on their own schedules
+     rather than by assumption. The atmosphere is the grey radiative model of
+     Laughlin &amp; Bodenheimer (1993), case&nbsp;B: hydrostatic equilibrium
+     iterated with the real equation of state down the optical-depth scale,
+     mixing-length convection through the superadiabatic layers, adiabatic
+     below.</p>
+  <p>Two numerical habits of this line deserve their footnote. The
+     backward-Euler composition step uses the conjugate quadratic root
+     2(−C)/(B&nbsp;+&nbsp;√(B²−4AC)) — the schoolbook root is a catastrophic
+     cancellation at cool mesh points, and its rounding noise once destroyed
+     hydrogen ten times faster than the star could shine. And the first static
+     model is attempted from a soft start and retried once with the pseudoflux
+     normalized to the luminosity guess: stars with radiative interiors need
+     the boost, fully convective dwarfs refuse it, and the machine now simply
+     tries both. Calibrated against the Sun, the same deck gives
+     L&nbsp;=&nbsp;0.996&nbsp;L☉, R&nbsp;=&nbsp;1.000&nbsp;R☉,
+     T<sub>eff</sub>&nbsp;=&nbsp;5778&nbsp;K at the solar age.</p>
+  <p><a href="https://articles.adsabs.harvard.edu/pdf/1997ApJ...482..420L">Laughlin, Bodenheimer &amp; Adams 1997, ApJ 482, 420</a> ·
+     <a href="https://articles.adsabs.harvard.edu/pdf/1993ApJ...403..303L">Laughlin &amp; Bodenheimer 1993, ApJ 403, 303</a> ·
+     <a href="rdsource.html">the annotated listing</a> ·
+     <a href="https://github.com/oklo/Henyey">the repository</a></p>
+</section>
+
+<section class="section prose">
+  <h2><span class="secno">3–5</span>The reckoning</h2>
+  <p>How closely does the recreation track the 1997 paper? Head to head at the
+     zero-age main sequence, published model against this engine:</p>
+  <div class="tableview" style="margin-top:4px"><div>
+  <table>
+    <tr><th>M (M☉)</th><th colspan="2">log T<sub>eff</sub></th><th colspan="2">log L/L☉</th><th colspan="2">T<sub>c</sub> (10⁶ K)</th></tr>
+    <tr><th></th><th>1997</th><th>here</th><th>1997</th><th>here</th><th>1997</th><th>here</th></tr>
+    <tr><td>0.08</td><td>3.24</td><td>—</td><td>−3.96</td><td>fades</td><td>3.5</td><td>—</td></tr>
+    <tr><td>0.10</td><td>3.35</td><td>3.50</td><td>−3.38</td><td>−2.89</td><td>4.4</td><td>4.7</td></tr>
+    <tr><td>0.15</td><td>3.42</td><td>3.55</td><td>−2.81</td><td>−2.39</td><td>5.5</td><td>6.1</td></tr>
+    <tr><td>0.20</td><td>3.46</td><td>3.57</td><td>−2.50</td><td>−2.14</td><td>6.3</td><td>6.9</td></tr>
+  </table>
+  </div></div>
+  <p style="margin-top:14px">The offsets are systematic and understood: two of the paper's opacity
+     sources remain behind a paywall, and their stand-ins run a little
+     transparent, so these stars sit some tenths of a dex brighter and warmer
+     than the 1997 models — which themselves sat cool and dim of the observed
+     M&nbsp;dwarfs, as the paper candidly noted. Reality lies between. The
+     structure of the story survives everything: the two-gigayear contraction
+     to the main sequence lands on the paper's own number; the ³He peak and
+     the core expansion arrive on a clock uniformly scaled by the brightness
+     ratio; and the hydrogen-burning boundary falls between 0.08 and
+     0.10&nbsp;M☉ — press RUN on the 0.08 preset and watch a star fail to
+     become one. The blueward endgame — the radiative core, the last shell
+     source, the helium white dwarf — still guards the frontier here, exactly
+     as it guarded it in 1997.</p>
+  <p class="fineprint">The engine is the repository's <span class="mono">f77/henyey77.f</span>,
+     translated to C by a freshly built f2c and carried into your browser by
+     WebAssembly with the equation-of-state tables embedded — the trillion-year
+     integration runs entirely on your side of the wire. The full head-to-head,
+     with radii and central densities, is in the repository's
+     <a href="https://github.com/oklo/Henyey/blob/main/f77/PLAN.md">plan file</a>.</p>
+</section>
+</main>
+
+<footer>
+  <p class="mono"><a href="reddwarfs.html">the run</a> · <a href="rdsource.html">the program</a> · <a href="index.html">the 1964 machine</a> · <a href="https://github.com/oklo/Henyey">oklo/Henyey</a> · no data leaves your browser</p>
+</footer>
+
+<div id="tooltip" class="tooltip" hidden></div>
+<script src="rd.js"></script>
+</body>
+</html>
