@@ -313,6 +313,62 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    fraction 9.95% at 1.38e12 yr; rho_c falling 309 -> 204 g/cc;
    radiative-core onset at 5742 Gyr; helium white dwarf end state;
    tau_H ~ 1e13 yr for the minimum-mass star.
+
+   **DONE (2026-08-06), with the results below.** The Hayashi-track
+   start (card-2 field 10 = 1) implements the LB93 conventions: the
+   initial static model begins large and cool (the 0.1 Msun start
+   lands at log L = -0.25, rho_c = 0.033, Tc = 2.9e5 - inside all
+   three of LB93's stated windows) with a uniform artificial energy
+   generation L/M standing in for the contraction power (the
+   Henyey-era closure; BFGH Appendix E territory), a
+   mass-proportional pseudoflux guess, and the flag dropping after
+   model 1 so the time-dependent terms carry the gravitational
+   energy release from then on. The dt ceiling was raised to 3e17 s
+   for the trillion-year regime (the composition limiters bind long
+   before it elsewhere).
+
+   Head-to-head against LBA97 (their model || this code):
+
+   | M | log Te | log L | R (1e9 cm) | Tc (1e6 K) | rho_c |
+   | --- | --- | --- | --- | --- | --- |
+   | 0.08 | 3.24 \|\| no ignition | -3.96 \|\| (fades) | 8.02 \|\| 4.4 | 3.5 \|\| - | 398 \|\| 2374 |
+   | 0.10 | 3.35 \|\| 3.50 | -3.38 \|\| -2.89 | ~9 \|\| 8.2 | 4.4 \|\| 4.7 | 309 \|\| 476 |
+   | 0.15 | 3.42 \|\| 3.55 | -2.81 \|\| -2.39 | 12.9 \|\| 11.6 | 5.5 \|\| 6.1 | 182 \|\| 259 |
+   | 0.20 | 3.46 \|\| 3.57 | -2.50 \|\| -2.14 | 15.9 \|\| 14.5 | 6.3 \|\| 6.9 | 135 \|\| 182 |
+
+   The offsets are coherent: this code's models run 0.11-0.16 dex
+   warmer, 0.4-0.5 dex brighter, ~10% smaller, with ~10% hotter and
+   ~50% denser centers - the signature of a lower interior opacity,
+   i.e. of the two documented substitutions (BFGH App. B for WKM90;
+   no PMC85). LBA97 note their own models run cool and dim of
+   observation; ours run warm and bright of LBA97, with reality
+   between. Everything structural reproduces:
+
+   - The 0.1 Msun star reaches its ZAMS (luminosity minimum) after
+     1.7-2.1 Gyr of contraction against LBA97's "after 2 Gyr" - the
+     contraction clock agrees almost exactly.
+   - The 3He mass fraction peaks at 7.8% at 4.9e11 yr against their
+     9.95% at 1.38e12 yr - and the factor ~2.8 in epoch equals the
+     luminosity ratio, i.e. the whole timeline is uniformly
+     compressed by the brightness offset, nothing more.
+   - The 3He core expansion appears on schedule (rho_c falls 476 ->
+     265 before recovering; theirs 309 -> 204), with Tc rising
+     slowly through the same 4.4-5.4e6 window.
+   - The 8000-model run carries the star to Xc = 0.057 at 3.3e12 yr
+     (Tc = 1.1e7, rho_c = 399, still fully convective), through the
+     entire 3He epoch and deep into old age, in ~10 s of CPU.
+   - The hydrogen-burning minimum mass falls between 0.08 and 0.10
+     Msun (LBA97: just below 0.08): our 0.08 Msun model contracts,
+     goes degenerate, and cools as a brown dwarf to Teff ~ 120 K
+     over 3.8e12 yr - the LBA97 Fig. 2 morphology of their 0.06.
+   - NOT yet reached: the radiative-core transition and the helium
+     white dwarf endgame. LBA97's transition comes at 16% hydrogen;
+     our run ends (convergence failure, the shell-transition
+     regime) at 5.7% with the core still convective. That endgame
+     runs on conductive opacity (Hubbard-Lampe, awaiting
+     transcription) and on the shell-source convergence taming that
+     IS phase 7(i). The frontier is now exactly where the 1997
+     paper's hard problems live.
 7. **Extensions (the 2026 science)** — (i) convergence instrumentation
    and adaptive mesh-point insertion (the "temporary points" of HFG64);
    (ii) controlled experiments on the red-giant question by separately
