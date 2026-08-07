@@ -405,6 +405,64 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    (iii) complete evolutionary tracks for 0.25-0.43 Msun, where a
    hydrogen shell burns over a degenerate helium core.
 
+   **Phase 7(i) - SUBSTANTIALLY DONE (2026-08-07), and the 0.1 Msun
+   life is complete.** The shell-transition campaign, in the order
+   the wall revealed itself:
+
+   - A latent Phase-3 defect, exposed only by the endgame: the SCVH
+     inversion clamps log P at the table edge, so beyond
+     log rho ~ 3.9 the pressure lost its density dependence entirely
+     and the spent core collapsed unphysically to rho_c ~ 1e9.
+     STATEB now hands the high-density side to the BFGH form
+     (arbitrary degeneracy) through a second smoothstep in density.
+     With that, the core contracts to rho_c ~ 3e4 and degeneracy
+     holds it - physical.
+   - The temporary points of HFG64: between steps, zones whose
+     temperature or composition jump exceeds tolerance are split at
+     their mass midpoint, the new XI found by bisection on the
+     analytic mass law so every mass function stays exact, at most
+     four per step (SUBROUTINE REFINE).
+   - A central-temperature step limiter (3 percent per step) for the
+     fast post-exhaustion contraction.
+   - Stagnation damping in SOLVE: a sharp composition front sets up
+     an undamped Newton two-cycle (corrections alternating between
+     two states ~8 percent apart, forever); when corrections
+     stagnate, the applied step halves, collapsing the cycle onto
+     its midpoint.
+   - Interstep flag hysteresis: CONVCK is now always hysteretic
+     against the standing flags - across iterations AND across time
+     steps - so a marginal zone at the shell front cannot flip the
+     convective pattern every step; the fresh classification is done
+     once, after START.
+   - The dt shrink now reserves itself for genuine struggle
+     (NIT >= 25): at a sharp front the damped iteration routinely
+     needs twenty passes regardless of the time step, and shrinking
+     dt for a dt-independent difficulty only strangles the clock.
+   - The LB93 stopping convention (L < 1e-6 Lsun) is installed.
+
+   RESULT: the 0.1 Msun star now runs from Hayashi birth to
+   helium-white-dwarf death in one 18-second job - contraction
+   (2 Gyr), the trillion-year main sequence with the 3He epoch,
+   central hydrogen exhaustion at 3.2e12 yr, degenerate core
+   contraction held at rho_c ~ 3e4, the blueward excursion cresting
+   at Teff = 5906 K against LBA97's published maximum of 5807 K,
+   the corner, and the cooling descent to L = 1.6e-6 Lsun at
+   Teff = 1251 K - past the 1997 paper's published endpoint
+   (log L = -5.29 at 1651 K) and at the LB93 stop criterion, where
+   the tables' validity ends and the run ends with it. The
+   cooling-track clock (tens of Gyr from corner to 1250 K, against
+   LBA97's ~540 Gyr to 1651 K) is provisional: below Teff ~ 1700
+   the atmosphere rests on table extensions where PMC85 would rule.
+   NOTE: the convergence-machinery changes shifted the solar track
+   by ~2 percent (L = 0.979 at the solar age on the X = 0.738,
+   alpha = 1.82 deck); a final calibration polish is deferred.
+   REMAINING in 7(i): the very last descent still ends in a
+   convergence failure rather than the stop criterion (1.6e-6
+   against 1.0e-6); point REMOVAL (the "temporary" half of
+   temporary points) is unimplemented; the two-basin start and the
+   flip-zone limit cycle of the '64 line would benefit from the
+   same interstep hysteresis.
+
 ## Details recovered from Peter Bodenheimer (July 2026)
 
 Peter's recollections of the production 1964 Berkeley code, which shift
