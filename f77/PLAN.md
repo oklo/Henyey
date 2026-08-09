@@ -521,18 +521,57 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    - The STOP 2 death path now prints the last converged model -
      the post-mortem is worth more than the corpse.
 
-   RESULTS SO FAR: 0.25 Msun completes the ascent (R > 8 Rsun),
-   crosses the instability strip and lands on the He-WD
-   contraction track (Teff ~ 21000 K, R = 0.06 Rsun) - the track
-   the 1997 paper could not compute; the terminal WD settling
-   still ends in a late convergence failure (the last 7(i)-class
-   specimen, as for the 0.1 flagship whose descent now stalls at
-   L ~ 6e-6 instead of 1.6e-6).  0.35/0.40/0.43 climb the giant
-   branch with zero convergence failures to L = 425/920/1249
-   Lsun, R = 45/74/92 Rsun, Tc = 5.6/6.5/7.2e7 K - the 0.43 core
-   marching on ignition.  20000-model runs for 0.40/0.43 pending:
-   the race between helium ignition (T -> 1e8) and envelope
-   exhaustion is exactly the flash-mass question.
+   RESULTS: 0.25 Msun completes the ascent (R > 8 Rsun), crosses
+   the instability strip and lands on the He-WD contraction track
+   (Teff ~ 21000 K, R = 0.06 Rsun) - the track the 1997 paper
+   could not compute; the terminal WD settling still ends in a
+   late convergence failure (the last 7(i)-class specimen, as for
+   the 0.1 flagship whose descent now stalls at L ~ 6e-6 instead
+   of 1.6e-6).  0.30/0.35/0.40/0.43 climb the giant branch with
+   zero convergence failures to L = 160/434/943/1371 Lsun,
+   R = 23/46/74/90 Rsun, Tc = 4.57/5.57/6.53/7.40e7 - the 0.43
+   core reaching three-quarters of the way to ignition before
+   THE ONE REMAINING WALL:
+
+   **THE GIANT-TIP ENVELOPE FOLD (the open problem).**  Every
+   ascent ends at the same signature - a Newton limit cycle in
+   the surface fit (J = N, the fitted density and radius
+   swinging tens of percent), at a death Teff of 3700-4280 that
+   drifts with L/M, deterministic across every physics change
+   (the H2 molecule moved NOTHING: the 0.43 died at model 9869
+   pre-H2 and 9870 post).  Neither a narrow secant (DH 0.02 ->
+   0.005), nor best-so-far stagnation damping, nor loose
+   tolerance (EPSC 2e-3, which DID hop the 0.25's milder
+   crossing wall) touches it.  The diagnosis: at the tip the
+   mesh's outer point sits at 2.3 Rsun of a 23 Rsun star - the
+   OUTER NINETY PERCENT OF THE RADIUS, including the entire
+   convective envelope, lives inside the static fitting envelope
+   (mass fraction DELS = 0.002, no time terms, L constant), and
+   near the Hayashi line that envelope's solution is the
+   classically multivalued one.  A fold offers the Newton two
+   branches and no time step can pick one, because the envelope
+   carries no clock.  (This, at bottom, is likely what killed
+   the 1997 run too.)  THE FIX, NEXT SESSION: move the fitting
+   point outward (DELS ~ 2e-4) so the multivalued region rides
+   the time-dependent mesh - which requires the interior
+   equation of state STATE/STATEB to gain a low-pressure branch
+   (log P < 4, the SCVH floor) built on the H2-aware Saha
+   equilibrium: an inversion of SAHA1 from (T, rho) to (P, E).
+   The machinery (SAHA1 with H2, the substepped march, REMOVE)
+   is all in place for it.
+
+   Physics harvested along the way for section 4 of the paper
+   (the WHY of red giants): the helium-enriched 0.20 Msun
+   alternates of LBA97 Fig. 5 run (IHAY=0 starts - the Hayashi
+   generator assumes X ~ 0.7): the X = 0.20 star stays COMPACT
+   (R ~ 0.07 Rsun at L = 0.35) and vents its shell luminosity
+   through a hydrogen SHELL FLASH (L spiking 0.1 -> 69 Lsun,
+   R touching 1.07 Rsun, matching the excursion amplitudes of
+   Fig. 5) where the X = 0.70 control expands to R ~ 5 Rsun -
+   the mu-gradient ingredient, reproduced.  And the tip fold
+   itself is ingredient (3) wearing numerical clothes: the
+   photospheric-opacity ceiling is precisely where the envelope
+   solutions multiply.
 
 ## Details recovered from Peter Bodenheimer (July 2026)
 
