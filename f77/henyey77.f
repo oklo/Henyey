@@ -1087,16 +1087,22 @@ C     GRADIENT; ICE MARKS THE ZONES WHERE IT MATTERS AT ALL.
             DELB=0.5*(DELZ(J)+DELZ(J+1))
             CALL MLTG(GR,GAB,CPB,RHOB,CB,TB,GEE,HP,DELB,ALFA,
      1         GRADC)
-            IF (GRADC-GAB.GT.1.D-2*GAB) THEN
-               ICEN=1
-               PHIZ(J)=GRADC/GR
-            END IF
+            EXC=(GRADC-GAB)/GAB
+            PHIZ(J)=GRADC/GR
+C           TWO THRESHOLDS, NOT ONE - A ZONE SITTING AT THE
+C           EFFICIENCY BOUNDARY WOULD OTHERWISE TRADE ITS
+C           EQUATION BACK AND FORTH FROM STEP TO STEP, AND THE
+C           OUTER ZONES OF A COOL GIANT DO SIT THERE.
+            IF (EXC.GT.2.D-2) ICEN=1
+            IF (EXC.GE.5.D-3 .AND. EXC.LE.2.D-2) ICEN=ICE(J)
          END IF
       END IF
-      IF (MODE.EQ.0) ICE(J)=ICEN
-      IF (MODE.EQ.1 .AND. ICEN.EQ.1) ICE(J)=1
-      IF (MODE.EQ.1 .AND. ICEN.EQ.0 .AND. PHIZ(J).GE.1.) ICE(J)=0
-      IF (ICV(J).EQ.0) ICE(J)=0
+      IF (ICEN.EQ.0) PHIZ(J)=1.
+      ICE(J)=ICEN
+      IF (ICV(J).EQ.0) THEN
+         ICE(J)=0
+         PHIZ(J)=1.
+      END IF
    10 CONTINUE
       RETURN
       END
