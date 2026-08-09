@@ -23,7 +23,7 @@ const presets = {
   m015:      { mass: 0.15, x: 0.700, z: 0.020, models: 600,  dtyr: 1e4, alfa: 1.36, nprin: 60,  ihay: 1 },
   m020:      { mass: 0.20, x: 0.700, z: 0.020, models: 600,  dtyr: 1e4, alfa: 1.36, nprin: 60,  ihay: 1 },
   m030:      { mass: 0.30, x: 0.700, z: 0.020, models: 400,  dtyr: 1e8, alfa: 1.36, nprin: 50,  ihay: 0 },
-  sun:       { mass: 1.00, x: 0.735, z: 0.020, models: 50,   dtyr: 1e7, alfa: 1.79, nprin: 10,  ihay: 0 },
+  sun:       { mass: 1.00, x: 0.735, z: 0.020, models: 50,   dtyr: 1e7, alfa: 1.73, nprin: 10,  ihay: 0 },
 };
 F("preset").addEventListener("change", e => {
   Object.assign(state, presets[e.target.value]);
