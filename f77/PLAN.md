@@ -560,6 +560,57 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    The machinery (SAHA1 with H2, the substepped march, REMOVE)
    is all in place for it.
 
+   **THE FOLD FIX, AND WHAT IT UNCOVERED (2026-08-08/09).**
+   Three changes moved the multivalued region onto the mesh:
+   DELS from 2.E-3 to 1.E-5; a low-pressure branch for the
+   INTERIOR equation of state (SCVLOW/SAHAPE - the H2-aware Saha
+   equilibrium inverted from (T,rho) to (P,E) by a fixed-length
+   multiplicative iteration, blended in pressure across
+   log P 4.0-4.4); and START's inward march taking its gradient
+   and density from THERME instead of a hardwired 0.40 and an
+   ideal gas (beginning at 6000 K in molecular territory, the
+   old march ran the guess several times too hot and stranded
+   the Hayashi start).  The surface correction cap was given an
+   exponentially growing allowance while the correction keeps
+   one sign, so a shell-flash runaway - monotone - can be
+   followed while a fold - alternating - stays pinned.
+
+   RESULT: the 0.30 crossed the tip that had killed it five
+   times, and the 0.10 flagship ran its ENTIRE life to the LB93
+   criterion (L < 1.E-6 at Teff = 1105 K) for the first time.
+
+   BUT the fitting point had also carried the HYDROGEN
+   IONIZATION ZONE onto the mesh, which assumed convection
+   carries its flux with no excess gradient.  At a giant's outer
+   density of 1.E-10 that is badly false, and the proof was that
+   a 0.35 Msun giant's effective temperature at fixed luminosity
+   moved from 3494 K to 4882 K as DELS shrank - a star cannot
+   care where we choose to cut it.  So equation (26) keeps its
+   entropy form (which takes the true adiabat from the equation
+   of state) and now carries the mixing-length excess as a
+   source, T dS = cp T (grad - grad_ad) dln P, from the same
+   Boehm-Vitense cubic and the same alpha the envelope uses
+   (SUBROUTINE MLTG).  grad_ad, cp and delta are assembled from
+   the derivatives PHYSIC already forms, and CONVCK tests
+   against that true grad_ad (near 0.15 in a giant's ionization
+   zone) rather than the fully-ionized 0.40.
+
+   VALIDATION: the same 0.35 Msun star computed with the fitting
+   mass at 2.E-3 and at 1.E-5 now agrees to about one percent in
+   Teff over four decades of luminosity, and the tracks land
+   where red giants actually are - L = 242 Lsun at Teff = 3338 K,
+   R = 47 Rsun, against the 5300 K these models showed before.
+   The Sun is untouched: X = 0.736, alpha = 1.73 -> L = 1.000,
+   R = 0.998, Teff = 5789.
+
+   THE 0.25 MSUN STAR AGAINST LBA97 SECTION 4.1: from the main
+   sequence (L = 0.015) to the tip (L = 9.7) is a factor of 640,
+   and the radius goes 0.28 -> 5.35 Rsun, a factor of 19 -
+   against the paper's "close to a thousand" and "more than a
+   factor of ten" for this mass.  It then crosses and settles
+   onto the helium-white-dwarf track.  The lowest-mass red giant
+   of the 1997 paper now computes.
+
    Physics harvested along the way for section 4 of the paper
    (the WHY of red giants): the helium-enriched 0.20 Msun
    alternates of LBA97 Fig. 5 run (IHAY=0 starts - the Hayashi
