@@ -13,16 +13,17 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 
 /* ---------- run state ---------- */
 const F = id => document.getElementById(id);
-const state = { mass: 0.10, x: 0.700, z: 0.020, x3: 0.0, models: 1200, dtyr: 1e4,
-                alfa: 1.36, mesh: 151, clim: 0.2, eps: 5e-4, nprin: 60,
+const state = { mass: 0.10, x: 0.700, z: 0.020, x3: 0.0, models: 4300, dtyr: 1e4,
+                alfa: 1.36, mesh: 151, clim: 0.2, eps: 5e-4, nprin: 250,
                 ieos: 0, iopc: 0, ihay: 1 };
 const presets = {
+  complete:  { mass: 0.10, x: 0.700, z: 0.020, models: 4300, dtyr: 1e4, alfa: 1.36, nprin: 250, ihay: 1 },
   flagship:  { mass: 0.10, x: 0.700, z: 0.020, models: 1200, dtyr: 1e4, alfa: 1.36, nprin: 60,  ihay: 1 },
   browndwarf:{ mass: 0.08, x: 0.700, z: 0.020, models: 450,  dtyr: 1e4, alfa: 1.36, nprin: 50,  ihay: 1 },
   m015:      { mass: 0.15, x: 0.700, z: 0.020, models: 600,  dtyr: 1e4, alfa: 1.36, nprin: 60,  ihay: 1 },
   m020:      { mass: 0.20, x: 0.700, z: 0.020, models: 600,  dtyr: 1e4, alfa: 1.36, nprin: 60,  ihay: 1 },
   m030:      { mass: 0.30, x: 0.700, z: 0.020, models: 400,  dtyr: 1e8, alfa: 1.36, nprin: 50,  ihay: 0 },
-  sun:       { mass: 1.00, x: 0.691, z: 0.020, models: 50,   dtyr: 1e7, alfa: 1.36, nprin: 10,  ihay: 0 },
+  sun:       { mass: 1.00, x: 0.735, z: 0.020, models: 50,   dtyr: 1e7, alfa: 1.79, nprin: 10,  ihay: 0 },
 };
 F("preset").addEventListener("change", e => {
   Object.assign(state, presets[e.target.value]);
@@ -51,7 +52,7 @@ function e103(v) {
 }
 function deckLines() {
   const c1 = f105(state.mass) + f105(state.x) + f105(state.z) + f105(state.x3);
-  const c2 = i5(state.mesh) + i5(Math.min(3000, Math.max(1, state.models))) +
+  const c2 = i5(state.mesh) + i5(Math.min(6000, Math.max(1, state.models))) +
              e103(state.dtyr) + f105(state.clim) + e103(state.eps) +
              i5(state.nprin) + f105(state.alfa) +
              i5(state.ieos) + i5(state.iopc) + i5(state.ihay);
@@ -70,7 +71,8 @@ const printerScroll = document.getElementById("printerScroll");
 const jobStatus = document.getElementById("jobStatus");
 
 function newRun() {
-  return { lines: [], track: [], structures: [], curStruct: null, lastModel: 0, done: false };
+  return { lines: [], track: [], structures: [], curStruct: null, lastModel: 0, done: false,
+           ihay: state.ihay };
 }
 const TRACK_RE = /^ +(\d+) +([\d.]+E[+-]\d+) +([\d.]+E[+-]\d+) +(\d+) +([-\d.]+E[+-]\d+) +([-\d.]+E[+-]\d+) +([-\d.]+E[+-]\d+) +([-\d.]+E[+-]\d+) +([-\d.]+E[+-]\d+) +([-\d.]+E[+-]\d+) +([-\d.]+E[+-]\d+)/;
 function handleLine(l) {
@@ -178,6 +180,7 @@ function logLab(v) {
   const e = Math.round(v);
   return "10" + String(e).split("").map(c => SUP[c] || c).join("");
 }
+let CLIPN = 0;
 function lineChart(el, spec) {
   const W = spec.w || 460, H = spec.h || 355, L = 64, R = 14, T = 14, B = 40;
   const lgx = spec.logx, lgy = spec.logy;
@@ -223,6 +226,9 @@ function lineChart(el, spec) {
     s += `<text x="${X(v)}" y="${H-B+15}" text-anchor="middle" font-family="var(--serif)" font-size="11.5" fill="var(--ink-2)">${lab}</text>`;
   }
   s += `<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="none" stroke="var(--ink)" stroke-width="1.1"/>`;
+  const cid = "rdclip" + (CLIPN++);
+  s += `<defs><clipPath id="${cid}"><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}"/></clipPath></defs>`;
+  s += `<g clip-path="url(#${cid})">`;
   s += `<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-family="var(--serif)" font-style="italic" font-size="12" fill="var(--ink-2)">${spec.xlab}</text>`;
   if (spec.ylab) {
     const cy = (T + H - B) / 2;
@@ -262,6 +268,17 @@ function lineChart(el, spec) {
     const li = main.length - 1;
     s += `<circle cx="${X(xs[li])}" cy="${Y(ys[li])}" r="3.4" fill="var(--red)"/>`;
   }
+  s += `</g>`;
+  /* event annotations in the journal manner - a dot, a short
+     leader, an italic label */
+  if (spec.notes) for (const n of spec.notes) {
+    const px = X(tx(n.x)), py = Y(ty(n.y));
+    if (px < L - 2 || px > W - R + 2 || py < T - 2 || py > H - B + 2) continue;
+    s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.4" fill="none" stroke="var(--ink)" stroke-width="1"/>`;
+    s += `<line x1="${(px + n.dx * 0.25).toFixed(1)}" y1="${(py + n.dy * 0.25).toFixed(1)}" x2="${(px + n.dx * 0.8).toFixed(1)}" y2="${(py + n.dy * 0.8).toFixed(1)}" stroke="var(--ink-3)" stroke-width="0.8"/>`;
+    s += `<text x="${(px + n.dx).toFixed(1)}" y="${(py + n.dy + 3.5).toFixed(1)}" text-anchor="${n.anchor || "start"}" font-family="var(--serif)" font-style="italic" font-size="10.5" fill="var(--ink-2)">${n.text}</text>`;
+  }
+  if (spec.extraSVG) s += spec.extraSVG;
   s += `<line id="ch" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--ink-3)" stroke-width="1" visibility="hidden"/>`;
   s += `<circle id="hp" r="4" fill="none" stroke="var(--red)" stroke-width="2" visibility="hidden"/>`;
   s += `</svg>`;
@@ -299,23 +316,84 @@ function renderAll() {
   renderJob();
   if (!run || run.track.length < 2) return;
   const tk = run.track;
-  /* Fig. 1 — the HR diagram in the convention of LBA97 Fig. 1:
-     linear effective temperature, hot to the left, log luminosity. */
-  const teMax = Math.max(6000, Math.ceil(Math.max(...tk.map(p => p.Teff)) / 1000) * 1000);
-  const lMin = Math.min(...tk.map(p => p.L).filter(v => v > 0));
-  lineChart(document.getElementById("hrBox"), {
-    pts: tk.map(p => ({ x: p.Teff, y: p.L, p })), logy: true, logx: false, xrev: true,
-    dots: true, lw: 0.6, arrows: [0.25, 0.7],
-    xrange: [1000, teMax], yrange: [Math.min(1e-4, lMin * 0.5), Math.max(1, ...tk.map(p => p.L)) * 2],
-    ylab: "L / L☉", xlab: "Teff (K)",
-    tip: q => `model ${q.p.model} · ${ageLab(q.p.age)}<br>L = ${fmtNum(q.p.L)} L☉ · Teff = ${Math.round(q.p.Teff)} K<br>R = ${fmtNum(q.p.R)} R☉ · Xc = ${q.p.Xc.toFixed(3)}`,
-  });
-  /* Fig. 2 — core composition against time, after the LBA97 inset:
-     H from every model; the helium isotopes from the printed structures. */
+  /* core-composition samples from the printed structures (used by
+     the HR inset, the annotations, and Fig. 2) */
   const tX3 = run.structures.map(st => {
     const trk = tk.find(t => t.model === st.model);
-    return trk ? { x: trk.age / 1e12, x3: st.pts[0].x3, X: st.pts[0].X } : null;
+    return trk ? { x: trk.age / 1e12, x3: st.pts[0].x3, X: st.pts[0].X, model: st.model } : null;
   }).filter(Boolean);
+  /* Fig. 1 — the HR diagram in the manner of LBA97 Fig. 1: linear
+     effective temperature, hot to the left, log luminosity, one dot
+     per converged model, the life's milestones labeled along the
+     track, and the core composition inset. */
+  const teMax = Math.max(6000, Math.ceil(Math.max(...tk.map(p => p.Teff)) / 1000) * 1000);
+  const lMin = Math.min(...tk.map(p => p.L).filter(v => v > 0));
+  const lMax = Math.max(...tk.map(p => p.L));
+  const notes = [];
+  if (run.ihay && tk.length > 30) {
+    notes.push({ x: tk[3].Teff, y: tk[3].L, text: "Hayashi track", dx: 16, dy: -8 });
+    /* the zero-age main sequence: the luminosity minimum of the
+       contraction phase */
+    let zi = -1, zl = 1e30;
+    for (let i = 5; i < tk.length / 2; i++) if (tk[i].L < zl) { zl = tk[i].L; zi = i; }
+    if (zi > 5 && zi < tk.length / 2 - 1 && tk[zi].L < tk[3].L / 3)
+      notes.push({ x: tk[zi].Teff, y: tk[zi].L, text: "Z.A.M.S.", dx: 20, dy: 22 });
+  }
+  if (tX3.length > 2) {
+    let mi = 0;
+    tX3.forEach((q, i) => { if (q.x3 > tX3[mi].x3) mi = i; });
+    if (tX3[mi].x3 > 0.01 && mi > 0 && mi < tX3.length - 1) {
+      const trk = tk.find(t => t.model === tX3[mi].model);
+      if (trk) notes.push({ x: trk.Teff, y: trk.L, text: `³He = ${(tX3[mi].x3 * 100).toFixed(1)}%`, dx: 18, dy: 18 });
+    }
+  }
+  const ei = tk.findIndex(p => p.Xc < 1e-3);
+  if (ei > 30) notes.push({ x: tk[ei].Teff, y: tk[ei].L, text: "core H exhausted", dx: 14, dy: -12 });
+  let ci = 0;
+  tk.forEach((p, i) => { if (p.Teff > tk[ci].Teff) ci = i; });
+  if (run.ihay && ci > tk.length * 0.5 && tk[ci].Teff > 4500)
+    notes.push({ x: tk[ci].Teff, y: tk[ci].L, text: `the corner — ${Math.round(tk[ci].Teff)} K`, dx: -6, dy: -16, anchor: "middle" });
+  const lp = tk[tk.length - 1];
+  if (run.done && run.ihay && lp.L < 1e-4 && ci < tk.length - 5)
+    notes.push({ x: lp.Teff, y: lp.L, text: "helium white dwarf", dx: -14, dy: -12, anchor: "end" });
+  /* the composition inset, in the paper's own manner */
+  let inset = "";
+  if (run.ihay && tX3.length > 2 && tk[tk.length - 1].age > 5e11) {
+    const x0 = 118, iy0 = 252, iw = 175, ih = 112;
+    const tmax = Math.max(...tX3.map(q => q.x), tk[tk.length - 1].age / 1e12);
+    const xI = v => x0 + (v / tmax) * iw;
+    const yI = v => iy0 + ih - Math.max(0, Math.min(1, v)) * ih;
+    const path = (pts) => pts.map((p, i) => (i ? "L" : "M") + xI(p[0]).toFixed(1) + " " + yI(p[1]).toFixed(1)).join("");
+    const hSeries = tk.filter((p, i) => i % 5 === 0 || i === tk.length - 1).map(p => [p.age / 1e12, p.Xc]);
+    const he4 = tX3.map(q => [q.x, Math.max(0, 1 - q.X - q.x3 - state.z)]);
+    const he3 = tX3.map(q => [q.x, q.x3]);
+    inset =
+      `<g font-family="var(--serif)" font-size="9.5" fill="var(--ink-2)">` +
+      `<rect x="${x0}" y="${iy0}" width="${iw}" height="${ih}" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.9"/>` +
+      `<path d="${path(hSeries)}" fill="none" stroke="var(--ink)" stroke-width="1.2"/>` +
+      `<path d="${path(he4)}" fill="none" stroke="var(--ink)" stroke-width="1.0"/>` +
+      `<path d="${path(he3)}" fill="none" stroke="var(--ink)" stroke-width="0.9" stroke-dasharray="4 2.5"/>` +
+      `<text x="${x0 + iw / 2}" y="${iy0 - 5}" text-anchor="middle" font-style="italic">core composition</text>` +
+      `<text x="${xI(hSeries[0][0]) + 4}" y="${yI(hSeries[0][1]) + 10}" font-style="italic">H</text>` +
+      (he4.length ? `<text x="${(xI(he4[he4.length - 1][0]) - 12).toFixed(1)}" y="${(yI(he4[he4.length - 1][1]) + 12).toFixed(1)}" font-style="italic">⁴He</text>` : "") +
+      (tX3.length > 2 ? `<text x="${xI(tX3[Math.floor(tX3.length / 2)].x).toFixed(1)}" y="${(yI(tX3[Math.floor(tX3.length / 2)].x3) - 5).toFixed(1)}" font-style="italic">³He</text>` : "") +
+      `<text x="${x0}" y="${iy0 + ih + 11}" font-size="8.5">0</text>` +
+      `<text x="${x0 + iw}" y="${iy0 + ih + 11}" text-anchor="end" font-size="8.5">${tmax.toFixed(1)} Tyr</text>` +
+      `<text x="${x0 - 4}" y="${iy0 + ih + 3}" text-anchor="end" font-size="8.5">0</text>` +
+      `<text x="${x0 - 4}" y="${iy0 + 8}" text-anchor="end" font-size="8.5">1</text>` +
+      `</g>`;
+  }
+  lineChart(document.getElementById("hrBox"), {
+    w: 620, h: 430,
+    pts: tk.map(p => ({ x: p.Teff, y: p.L, p })), logy: true, logx: false, xrev: true,
+    dots: true, lw: 0.6, arrows: [0.12, 0.45, 0.85],
+    xrange: [1000, teMax], yrange: [Math.max(1e-6, lMin * 0.5), lMax * 2.5],
+    ylab: "L / L☉", xlab: "Teff (K)",
+    notes, extraSVG: inset,
+    tip: q => `model ${q.p.model} · ${ageLab(q.p.age)}<br>L = ${fmtNum(q.p.L)} L☉ · Teff = ${Math.round(q.p.Teff)} K<br>R = ${fmtNum(q.p.R)} R☉ · Xc = ${q.p.Xc.toFixed(3)}`,
+  });
+  /* Fig. 2 — core composition against time, readable size with
+     hover, complementing the inset. */
   const comp = {
     series: [
       { pts: tk.map(p => ({ x: p.age / 1e12, y: p.Xc, p })), lw: 1.6, label: "H", labelAt: 0.45 },

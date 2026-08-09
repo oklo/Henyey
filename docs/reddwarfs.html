@@ -50,7 +50,8 @@
   <div class="controls">
     <label>Preset
       <select id="preset">
-        <option value="flagship">0.10 M☉ — the flagship</option>
+        <option value="complete">0.10 M☉ — the complete life</option>
+        <option value="flagship">0.10 M☉ — to the ³He peak</option>
         <option value="browndwarf">0.08 M☉ — fails to ignite</option>
         <option value="m015">0.15 M☉</option>
         <option value="m020">0.20 M☉</option>
@@ -60,7 +61,7 @@
     </label>
     <label>Mass (M☉) <input id="f_mass" type="number" step="0.01" min="0.06" max="2.0" value="0.10"></label>
     <label>X (hydrogen) <input id="f_x" type="number" step="0.001" min="0.4" max="0.85" value="0.700"></label>
-    <label>Models <input id="f_models" type="number" step="50" min="1" max="3000" value="1200"></label>
+    <label>Models <input id="f_models" type="number" step="50" min="1" max="6000" value="4300"></label>
     <label>Δt₀ (yr) <input id="f_dtyr" type="number" step="1e4" min="1e3" max="1e9" value="1e4"></label>
     <label>α (mixing length) <input id="f_alfa" type="number" step="0.1" min="0.1" max="3" value="1.36"></label>
     <label class="checkline"><input id="f_ihay" type="checkbox" checked> Hayashi start</label>
@@ -92,7 +93,7 @@
      hydrogen into helium-3 into helium-4 — on a clock that reads in trillions
      of years.</p>
   <div class="chartgrid">
-    <figure class="chartcard wide" id="hrChart"><div class="chartbox" id="hrBox"></div><figcaption class="caption"><b>Fig.&nbsp;1.</b> Evolution in the Hertzsprung–Russell diagram, after Fig.&nbsp;1 of LBA97. Each dot is a separately converged model; the red point is the current one. A Hayashi start descends the right-hand track, turns at the zero-age main sequence, and creeps blueward as the star ages.</figcaption></figure>
+    <figure class="chartcard wide" id="hrChart"><div class="chartbox" id="hrBox"></div><figcaption class="caption"><b>Fig.&nbsp;1.</b> Evolution in the Hertzsprung–Russell diagram, after Fig.&nbsp;1 of LBA97: each dot a separately converged model, the milestones of the life labeled along the track — the Hayashi descent, the zero-age main sequence, the ³He maximum, hydrogen exhaustion, the blueward corner, and the helium-white-dwarf descent — with the core composition inset in the paper's own manner. The red point is the current model. On the complete-life preset the track closes the story the 1997 paper told: the crest lands within two percent of the published 5807&nbsp;K, and the descent runs past the figure's published endpoint.</figcaption></figure>
     <figure class="chartcard wide" id="compChart"><div class="chartbox" id="compBox"></div><figcaption class="caption"><b>Fig.&nbsp;2.</b> Core composition against time, after the inset of LBA97 Fig.&nbsp;1: mass fractions of hydrogen, ³He (dashed), and ⁴He at the center. The ³He isotope rises to a few-percent peak and is then consumed — the little bump that shapes a trillion years of structure.</figcaption></figure>
     <figure class="chartcard" id="lumChart"><div class="chartbox" id="lumBox"></div><figcaption class="caption"><b>Fig.&nbsp;3.</b> Luminosity, in units of <i>L</i>☉.</figcaption></figure>
     <figure class="chartcard" id="radChart"><div class="chartbox" id="radBox"></div><figcaption class="caption"><b>Fig.&nbsp;4.</b> Radius, in units of <i>R</i>☉.</figcaption></figure>
@@ -127,7 +128,11 @@
      formula taking over above the tables' ceiling. The low-temperature opacity
      is the molecule-and-grain Rosseland grid of Alexander, Johnson &amp; Rypma
      (1983), whose water-vapor blanketing and grain condensation set the very
-     shape of a red dwarf. The nuclear network follows the 1965 Appendix&nbsp;C
+     shape of a red dwarf. The interior radiative opacity is the King&nbsp;IVa
+     table of Cox&nbsp;&amp;&nbsp;Tabor (1976) — the source the 1993 paper names —
+     and the conduction that governs the degenerate endgame comes from the
+     Hubbard&nbsp;&amp;&nbsp;Lampe (1969) tables, both transcribed digit by digit
+     from the journal scans. The nuclear network follows the 1965 Appendix&nbsp;C
      scheme with all seven species explicit — H, ³He, ⁴He, C, ¹³C, N, O — so the
      ³He bump and the CN-cycle equilibration happen on their own schedules
      rather than by assumption. The atmosphere is the grey radiative model of
@@ -143,9 +148,17 @@
      model is attempted from a soft start and retried once with the pseudoflux
      normalized to the luminosity guess: stars with radiative interiors need
      the boost, fully convective dwarfs refuse it, and the machine now simply
-     tries both. Calibrated against the Sun, the same deck gives
-     L&nbsp;=&nbsp;0.996&nbsp;L☉, R&nbsp;=&nbsp;1.000&nbsp;R☉,
-     T<sub>eff</sub>&nbsp;=&nbsp;5778&nbsp;K at the solar age.</p>
+     tries both. The shell-burning endgame added three more habits: the
+     “temporary points” of the 1964 paper, splitting mesh zones where the
+     shell source steepens; a damping rule that collapses the Newton
+     two-cycle a sharp composition front sets up; and convective-boundary
+     hysteresis that persists across time steps, so a marginal zone cannot
+     flip the pattern every model and masquerade as a hard problem.
+     Calibrated against the Sun, the same physics gives
+     L&nbsp;=&nbsp;1.000&nbsp;L☉, R&nbsp;=&nbsp;1.001&nbsp;R☉,
+     T<sub>eff</sub>&nbsp;=&nbsp;5782&nbsp;K at the solar age — at the
+     hydrogen abundance X&nbsp;=&nbsp;0.735 that pre-OPAL opacities
+     historically demanded.</p>
   <p><a href="https://articles.adsabs.harvard.edu/pdf/1997ApJ...482..420L">Laughlin, Bodenheimer &amp; Adams 1997, ApJ 482, 420</a> ·
      <a href="https://articles.adsabs.harvard.edu/pdf/1993ApJ...403..303L">Laughlin &amp; Bodenheimer 1993, ApJ 403, 303</a> ·
      <a href="rdsource.html">the annotated listing</a> ·
@@ -166,19 +179,32 @@
     <tr><td>0.20</td><td>3.46</td><td>3.57</td><td>−2.50</td><td>−2.14</td><td>6.3</td><td>6.9</td></tr>
   </table>
   </div></div>
-  <p style="margin-top:14px">The offsets are systematic and understood: two of the paper's opacity
-     sources remain behind a paywall, and their stand-ins run a little
-     transparent, so these stars sit some tenths of a dex brighter and warmer
-     than the 1997 models — which themselves sat cool and dim of the observed
-     M&nbsp;dwarfs, as the paper candidly noted. Reality lies between. The
-     structure of the story survives everything: the two-gigayear contraction
-     to the main sequence lands on the paper's own number; the ³He peak and
-     the core expansion arrive on a clock uniformly scaled by the brightness
-     ratio; and the hydrogen-burning boundary falls between 0.08 and
-     0.10&nbsp;M☉ — press RUN on the 0.08 preset and watch a star fail to
-     become one. The blueward endgame — the radiative core, the last shell
-     source, the helium white dwarf — still guards the frontier here, exactly
-     as it guarded it in 1997.</p>
+  <p style="margin-top:14px">The offsets are systematic and understood — and, remarkably, they are
+     not in the interior. Installing the paper's own King&nbsp;IVa interior
+     opacity moved these dwarfs by nothing at all, to five digits: a fully
+     convective star's structure depends only on its photosphere and its
+     adiabat, so the brightness offset lives in the atmospheric treatment,
+     where the 1997 models (with their fuller molecular data) ran cooler
+     than this grey-plus-AJR stack. LBA97 sat cool and dim of the observed
+     M&nbsp;dwarfs, as the paper candidly noted; these models sit near the
+     modern temperature scale, with the 1997 track between. The structure of
+     the story survives everything: the two-gigayear contraction lands on
+     the paper's own number; the ³He peak and core expansion arrive on a
+     clock uniformly scaled by the brightness ratio; the hydrogen-burning
+     boundary falls between 0.08 and 0.10&nbsp;M☉ — press RUN on the 0.08
+     preset and watch a star fail to become one.</p>
+  <p style="margin-top:14px">And the endgame no longer guards the frontier. With the
+     Hubbard–Lampe conduction installed and the shell-transition numerics
+     tamed, the complete-life preset runs the whole biography in one job:
+     hydrogen exhaustion at 3.2 trillion years, the degenerate core held at
+     thirty thousand grams per cubic centimeter, the blueward excursion
+     cresting at 5906&nbsp;K against the paper's published maximum of
+     5807&nbsp;K, the corner, and the cooling descent to a millionth of the
+     solar luminosity at 1250&nbsp;K — past the published endpoint of the
+     1997 paper's Figure&nbsp;1. The cooling clock below ~1700&nbsp;K is
+     provisional — that regime rests on table extensions where the
+     still-paywalled grain opacities would rule — which is the honest edge
+     of what this recreation currently knows.</p>
   <p class="fineprint">The engine is the repository's <span class="mono">f77/henyey77.f</span>,
      translated to C by a freshly built f2c and carried into your browser by
      WebAssembly with the equation-of-state tables embedded — the trillion-year
