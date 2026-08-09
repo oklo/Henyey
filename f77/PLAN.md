@@ -463,6 +463,77 @@ L < 1e-6 Lsun or the hydrogen-burning main sequence is reached.
    flip-zone limit cycle of the '64 line would benefit from the
    same interstep hysteresis.
 
+   **Phase 7(iii) - IN PROGRESS (2026-08-08): the giant-branch
+   walls fall.** The 0.25 Msun run reproduced the 1997 paper's own
+   death - "plagued with a drastically decreasing time step" on
+   the giant ascent - and the post-mortems then took the walls
+   down one by one:
+
+   - THE TABLE FLOOR (the twin of the 7(i) table-edge clamp): a
+     giant's photosphere (log g ~ 2.7) sits at log P ~ 3, a full
+     decade below the SCVH pressure grid's floor at log P = 4.0,
+     where SCVI1's Hermite segments extrapolate cubically - not
+     even monotone.  THERME now blends the envelope thermodynamics
+     to the Saha equilibrium below the floor (C1 smoothstep over
+     log P = 4.0-4.4), but gated in temperature (smoothstep
+     3500-4500 K): molecule-free Saha at a cool giant tip lets
+     the star fall through the Hayashi line (a 0.35 Msun test
+     reached Teff = 2055 K on an H2-blind adiabat before the gate
+     went in).
+   - THE CHAOTIC AMPLIFIER: just below the photosphere of a
+     low-gravity star the radiative gradient reaches ~4 (steep
+     H opacity) while the thin material convects too weakly to
+     matter, and ENVEL's whole-zone Euler step (dlnT ~ 0.5 per
+     step) overshot the opacity peak by factors of two - the
+     fitted surface values were NOISE across Teff 6900-9100 K
+     (proved by direct parameter scan of ENVEL), and the surface
+     Newton was a coin toss.  The march now substeps wherever
+     GRAD * dlnP would exceed 0.10.  The march was also refined
+     (25 log steps per decade of tau, NE = 280), which moved the
+     solar track ~1.5 percent and forced a recalibration:
+     **X = 0.7335, alpha = 1.70 -> L = 1.001, R = 1.003,
+     Teff = 5774 at 4.56 Gyr.**
+   - SURFACE BASIN-HOPPING: crossing out of the giant region the
+     envelope offers two nearby solutions (the surface convection
+     zone is dying), and the undamped Newton leaps between basins
+     forever - a dt-independent difficulty, since the envelope
+     carries no time terms.  On evolutionary steps SOLVE now holds
+     the total-radius and total-luminosity corrections to 5
+     percent per iteration.
+   - POINT REMOVAL (SUBROUTINE REMOVE): the missing half of the
+     HFG64 temporary points.  A point goes when the joined zone
+     would still be smooth by HALF the splitting tolerance
+     (hysteresis), with two hard lessons encoded: the smoothness
+     measure MUST carry the density (an isothermal degenerate
+     core is flat in T and X at ANY zoning - the first version
+     ate the core mesh until the hydrostatic differences went
+     bad and Tc excursions killed every run), and a joined zone
+     is capped at delta-xi = 0.015.  Removal only acts with the
+     mesh near its cap (N >= 190), so calibrated tracks keep
+     their zoning.
+   - THE HE3 GATE: the step limiter's significance gate measured
+     against CENTRAL epsilon - zero in a shell star - so the slow
+     He3 relaxation at the shell's cool edge throttled the
+     giant-branch clock.  It now gates against the peak rate.
+   - HELIUM IGNITION STOP: the code carries no triple-alpha, so
+     any zone reaching T = 1e8 K ends the sequence with the
+     announcement that the helium flash begins (format 544).
+   - The STOP 2 death path now prints the last converged model -
+     the post-mortem is worth more than the corpse.
+
+   RESULTS SO FAR: 0.25 Msun completes the ascent (R > 8 Rsun),
+   crosses the instability strip and lands on the He-WD
+   contraction track (Teff ~ 21000 K, R = 0.06 Rsun) - the track
+   the 1997 paper could not compute; the terminal WD settling
+   still ends in a late convergence failure (the last 7(i)-class
+   specimen, as for the 0.1 flagship whose descent now stalls at
+   L ~ 6e-6 instead of 1.6e-6).  0.35/0.40/0.43 climb the giant
+   branch with zero convergence failures to L = 425/920/1249
+   Lsun, R = 45/74/92 Rsun, Tc = 5.6/6.5/7.2e7 K - the 0.43 core
+   marching on ignition.  20000-model runs for 0.40/0.43 pending:
+   the race between helium ignition (T -> 1e8) and envelope
+   exhaustion is exactly the flash-mass question.
+
 ## Details recovered from Peter Bodenheimer (July 2026)
 
 Peter's recollections of the production 1964 Berkeley code, which shift
